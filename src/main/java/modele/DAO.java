@@ -5,6 +5,10 @@
  */
 package modele;
 
+import entitys.MicroMarketEntity;
+import entitys.ProductEntity;
+import entitys.PurchaseOrderEntity;
+import java.util.List;
 import javax.sql.DataSource;
 
 /**
@@ -23,9 +27,40 @@ public class DAO {
             this.myDataSource = dataSource;
     }
     
-    // TODO FAIRE METHODE DE LOGIN USER
-    // TODO FAIRE METHODE DE LOGIN ADMIN
+    public void connexionClient(String id, String mdp){
+        
+    }
     
-    // TODO FAIRE METHODES DE COMMANDE
+    public void ConnexionAdmin(String id, String mdp){
+        
+    }
+    
+    public void ajoutCommande(){//Revoir Arguments
+        
+    }
+    
+    public void modifCommande(){//Revoir Arguments
+        
+    }
+    
+    public void suppressionCommande(int orderNum){
+        
+    }
+    
+    public List<PurchaseOrderEntity> commandesClient(int customerId, String dateDebut, String dateFin){
+        return null;
+    }
+    
+    public List<PurchaseOrderEntity> allCommandes(String dateDebut, String dateFin){
+        return null;
+    }
+    
+    public List<PurchaseOrderEntity> commandesParProduit(int productId, String dateDebut, String dateFin){
+        return null;
+    }
+    
+    public List<PurchaseOrderEntity> commandesParZone(String zipCode, String dateDebut, String dateFin){
+        return null;     
+    }
 
 }
