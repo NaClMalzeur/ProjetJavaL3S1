@@ -43,7 +43,7 @@ public class DAO {
         
     }
     
-    public void suppressionCommande(int orderNum){
+    public void suppressionCommand(int orderNum){
         
     }
     
