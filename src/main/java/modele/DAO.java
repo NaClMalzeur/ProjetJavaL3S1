@@ -51,7 +51,8 @@ public class DAO {
      */
     public boolean logInUser(String customerEmail, int customerID) throws DAOException{
         
-        CustomerEntity customer = null;
+        String name = null;
+        String email = null;
         
         // TODO Faire la requete SQL pour récupérer la ligne 
         // en fonction de l'email / customerID
@@ -63,9 +64,9 @@ public class DAO {
             stmt.setInt(2, customerID);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    String name = rs.getString("NAME");
-                    String email = rs.getString("EMAIL");
-                    customer = new CustomerEntity(customerID, name, email);
+                    name = rs.getString("NAME");
+                    email = rs.getString("EMAIL");
+                    //customer = new CustomerEntity(customerID, name, email);
                 }
             }
         } catch(SQLException e) {
@@ -73,9 +74,8 @@ public class DAO {
             throw new DAOException("Log in User : non implémenté");
         }
         
-        return customer != null 
-               && customer.getAddressLine1().equals(customerEmail) 
-               && customer.getCustomerId() == customerID;
+        return email != null && name != null
+               && email.equals(customerEmail);
     }
     
     /**
@@ -215,6 +215,105 @@ public class DAO {
         }
         
     }
+    
+    public List<ProductEntity> allProducts()
+        throws DAOException {
+        List<ProductEntity> listeProduct = new ArrayList<ProductEntity>();
+        String query = "SELECT * FROM PRODUCT";
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query)){
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int productId = rs.getInt("PRODUCT_ID");
+                    int manufacturerId = rs.getInt("MANUFACTURER_ID");
+                    String productCode = rs.getString("PRODUCT_CODE");
+                    float purchaseCode = rs.getFloat("PURCHASE_COST");
+                    int quantityOnHand = rs.getInt("QUANTITY_ON_HAND");
+                    float markup = rs.getFloat("MARKUP");
+                    String description = rs.getString("DESCRIPTION");
+                    
+                    
+                    ProductEntity produit = new ProductEntity(
+                            productId, manufacturerId, productCode, purchaseCode,
+                            quantityOnHand, markup, description);
+                    
+                    listeProduct.add(produit);
+                }
+            }
+        } catch(SQLException e) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+            throw new DAOException("Afficher commandes");
+        }
+        
+        
+        return listeProduct;
+    }
+    
+    public List<CustomerEntity> allCustomers()
+        throws DAOException {
+        List<CustomerEntity> listeCustomer = new ArrayList<CustomerEntity>();
+        String query = "SELECT * FROM CUSTOMER";
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query)){
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int customerId = rs.getInt("CUSTOMER_ID");
+                    String discountCode = rs.getString("DISCOUNT_CODE");
+                    String zip = rs.getString("ZIP");
+                    String name = rs.getString("NAME");
+                    String addressLine1 = rs.getString("ADRESSLINE1");
+                    String addressLine2 = rs.getString("ADRESSLINE2");
+                    String city = rs.getString("CITY");
+                    String state = rs.getString("STATE");
+                    String phone = rs.getString("PHONE");
+                    String fax = rs.getString("FAX");
+                    String email = rs.getString("EMAIL");
+                    int creditLimit = rs.getInt("CREDIT_LIMIT");
+                    
+                    
+                    CustomerEntity customer = new CustomerEntity(
+                            customerId, discountCode, zip, name, 
+                            addressLine1, addressLine2, city, state, 
+                            phone, fax, email, creditLimit);
+                    
+                    listeCustomer.add(customer);
+                }
+            }
+        } catch(SQLException e) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+            throw new DAOException("Afficher commandes");
+        }
+        
+        
+        return listeCustomer;
+    }
+    
+    public List<String> allZipCodes()
+        throws DAOException {
+        List<String> listeCustomer = new ArrayList<String>();
+        String query = "SELECT * FROM MICRO_MARKET";
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query)){
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String zip = rs.getString("ZIP_CODE");
+                    
+                    
+                    listeCustomer.add(zip);
+                }
+            }
+        } catch(SQLException e) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+            throw new DAOException("Afficher commandes");
+        }
+        
+        
+        return listeCustomer;
+    }
+    
     
     
     /**

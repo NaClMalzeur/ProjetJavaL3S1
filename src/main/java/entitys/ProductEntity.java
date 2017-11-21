@@ -16,17 +16,15 @@ public class ProductEntity {
     private float purchaseCode;
     private int quantityOnHand;
     private float markup;
-    private boolean available;
     private String description;
 
-    public ProductEntity(int productId, int manufacturerId, String productCode, float purchaseCode, int quantityOnHand, float markup, boolean available, String description) {
+    public ProductEntity(int productId, int manufacturerId, String productCode, float purchaseCode, int quantityOnHand, float markup, String description) {
         this.productId = productId;
         this.manufacturerId = manufacturerId;
         this.productCode = productCode;
         this.purchaseCode = purchaseCode;
         this.quantityOnHand = quantityOnHand;
         this.markup = markup;
-        this.available = available;
         this.description = description;
     }
 
@@ -76,14 +74,6 @@ public class ProductEntity {
 
     public void setMarkup(float markup) {
         this.markup = markup;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
     }
 
     public String getDescription() {
