@@ -106,7 +106,7 @@ public class DAO {
      * @throws DAOException si une erreur survient lors de l'obtention des 
      *  commandes ou si le client n'existe pas
      */
-    public List<PurchaseOrderEntity> afficherCommandes(/*int customerID, String dateDebut, String dateFin*/ String sql)
+    public List<PurchaseOrderEntity> afficherCommandes(PreparedStatement stmt)
             throws DAOException {
        
         // TODO : A VOIR POUR METTRE D'AUTRES ATT QUE CEUX DANS PURCHASE_ORDER
@@ -114,8 +114,7 @@ public class DAO {
        
         
         //String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ? AND SALES_DATE BETWEEN ? AND ?";
-        try (Connection connection = myDataSource.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try {
 
             /*stmt.setInt(1, customerID);
             stmt.setString(2, dateDebut);
@@ -150,25 +149,34 @@ public class DAO {
         //return null; // STUB : TODO ECRIRE LE CODE
     }
     
-    public void rqtCommandes(String dateDebut, String dateFin, int productId, String zipCode, int customerId)
+    public List<PurchaseOrderEntity> rqtCommandes(String dateDebut, String dateFin, int productId, String zipCode, int customerId)
         throws DAOException {
         
         String query = "SELECT * FROM PURCHASE_ORDER po ";
+        String comma = " WHERE ";
         
         if (zipCode!=null){
             query += " JOIN CUSTOMER cus ON po.CUSTOMER_ID = cus.CUSTOMER_ID ";
         }
-        
-        query += " WHERE po.SALES_DATE BETWEEN ? AND ? ";
-        
+        if (dateDebut != null){
+            query += comma + " po.SALES_DATE > ? ";
+            comma = " AND ";
+        }
+        if (dateFin != null){
+            query += comma + " po.SALES_DATE < ? ";
+            comma = " AND ";
+        }
         if (productId != 0){
-            query += " AND po.PRODUCT_ID = ? ";
+            query += comma + " po.PRODUCT_ID = ? ";
+            comma = " AND ";
         }
         if (zipCode!=null){
-            query += " AND cus.ZIP = ?";
+            query += comma + " AND cus.ZIP = ?";
+            comma = " AND ";
         }
         if (customerId != 0){
-            query += " AND po.CUSTOMER_ID = ? ";
+            query += comma + " AND po.CUSTOMER_ID = ? ";
+            comma = " AND ";
         }
         
         try (Connection connection = myDataSource.getConnection();
@@ -177,7 +185,15 @@ public class DAO {
             stmt.setString(1, dateDebut);
             stmt.setString(2, dateFin);
             int index = 3;
-        
+            
+            if (dateDebut != null){
+                stmt.setString(index, dateDebut);
+                index++;
+            }
+            if (dateFin != null){
+                stmt.setString(index, dateFin);
+                index++;
+            }
             if (productId != 0){
                 stmt.setInt(index, productId);
                 index++;
@@ -190,13 +206,14 @@ public class DAO {
                 stmt.setInt(index, customerId);
                 index++;
             }
+            
+            return afficherCommandes(stmt);
 
         } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
             throw new DAOException("Afficher commandes");
         }
         
-        afficherCommandes(query);
     }
     
     
