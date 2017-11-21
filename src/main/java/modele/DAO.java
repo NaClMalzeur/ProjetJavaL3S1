@@ -99,26 +99,31 @@ public class DAO {
      * On y affiche le produit commandé, la quantité, le prix unitaire (A VOIR),
      * le prix total, la date de vente / livraison, frais de livraison, 
      * 
-     * @param customer le client des commandes à afficher 
+     * @param customerID l'identifiant du client dont on affiche les commandes 
+     * @param dateDebut date de début des commandes à afficher 
+     * @param dateFin date de fin des commandes à afficher
      * @return la liste des commandes de ce client
      * @throws DAOException si une erreur survient lors de l'obtention des 
      *  commandes ou si le client n'existe pas
      */
-    public List<PurchaseOrderEntity> afficherCommandes(/*CustomerEntity customer*/ int customerID)
+    public List<PurchaseOrderEntity> afficherCommandes(/*int customerID, String dateDebut, String dateFin*/ String sql)
             throws DAOException {
        
         // TODO : A VOIR POUR METTRE D'AUTRES ATT QUE CEUX DANS PURCHASE_ORDER
         List<PurchaseOrderEntity> listeCommandes = new ArrayList<PurchaseOrderEntity>();
        
         
-        String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ? ";
+        //String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ? AND SALES_DATE BETWEEN ? AND ?";
         try (Connection connection = myDataSource.getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setInt(1, customerID);
+            /*stmt.setInt(1, customerID);
+            stmt.setString(2, dateDebut);
+            stmt.setString(3, dateFin);*/
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    int orderNum = rs.getInt("OERDER_NUM");
+                    int orderNum = rs.getInt("ORDER_NUM");
+                    int customerID = rs.getInt("CUSTOMER_ID");
                     int productID = rs.getInt("PRODUCT_ID");
                     int quantite = rs.getInt("QUANTITY");
                     int shippingCost = rs.getInt("SHIPPING_COST");
@@ -144,6 +149,56 @@ public class DAO {
         //throw new DAOException("Afficher commandes : non implémenté");
         //return null; // STUB : TODO ECRIRE LE CODE
     }
+    
+    public void rqtCommandes(String dateDebut, String dateFin, int productId, String zipCode, int customerId)
+        throws DAOException {
+        
+        String query = "SELECT * FROM PURCHASE_ORDER po ";
+        
+        if (zipCode!=null){
+            query += " JOIN CUSTOMER cus ON po.CUSTOMER_ID = cus.CUSTOMER_ID ";
+        }
+        
+        query += " WHERE po.SALES_DATE BETWEEN ? AND ? ";
+        
+        if (productId != 0){
+            query += " AND po.PRODUCT_ID = ? ";
+        }
+        if (zipCode!=null){
+            query += " AND cus.ZIP = ?";
+        }
+        if (customerId != 0){
+            query += " AND po.CUSTOMER_ID = ? ";
+        }
+        
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+            
+            stmt.setString(1, dateDebut);
+            stmt.setString(2, dateFin);
+            int index = 3;
+        
+            if (productId != 0){
+                stmt.setInt(index, productId);
+                index++;
+            }
+            if (zipCode!=null){
+                stmt.setString(index, zipCode);
+                index++;
+            }
+            if (customerId != 0){
+                stmt.setInt(index, customerId);
+                index++;
+            }
+
+        } catch(SQLException e) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+            throw new DAOException("Afficher commandes");
+        }
+        
+        afficherCommandes(query);
+    }
+    
     
     /**
      * Ajout d'une commande pour ce client, en fonction de :
