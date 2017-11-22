@@ -65,19 +65,19 @@ public class TestConnexion {
         // email correct / customer ID incorrect -> incorrect
         try {
             myDAO.logInUser(email, customerID);
-            assertTrue(myDAO.logInUser(email, customerIDIncorrect));
+            assertFalse(myDAO.logInUser(email, customerIDIncorrect));
         } catch (DAOException ex) {
             Logger.getLogger(TestConnexion.class.getName()).log(Level.SEVERE, null, ex);
-            fail("ECHEC Test afficher commandes : échec sur un client existant"); 
+            fail("ECHEC Test afficher commandes : échec de connexion"); 
         }
         
         // email inexistant / customer ID quelconque -> incorrect
         try {
             myDAO.logInUser(emailIncorrect, customerID);
-            assertTrue(myDAO.logInUser(email, customerIDIncorrect));
+            assertFalse(myDAO.logInUser(email, customerIDIncorrect));
         } catch (DAOException ex) {
             Logger.getLogger(TestConnexion.class.getName()).log(Level.SEVERE, null, ex);
-            fail("ECHEC Test afficher commandes : échec sur un client existant"); 
+            fail("ECHEC Test afficher commandes : échec de connexion"); 
         }
         
         
@@ -87,9 +87,23 @@ public class TestConnexion {
     /**
      * Test de connexion avec le compte admin
      * selon son id / password
+     * 
+     * id correct / password correct -> correct
+     * id correct / password incorrect -> incorrect
+     * id incorrect / password correct -> incorrect
+     * 
      */
     @Test
     public void testConnexionAdmin() {
-        fail("STUB");
+        
+        String ID_ADMIN = "administrateur"; // 
+        String PWD_ADMIN = "mdp_admin";
+        
+        String badID = "prout";
+        String badPWD = "toto";
+        
+        assertTrue(myDAO.logInAdmin(ID_ADMIN, PWD_ADMIN));
+        assertFalse(myDAO.logInAdmin(ID_ADMIN, badID));
+        assertFalse(myDAO.logInAdmin(badPWD, PWD_ADMIN));
     }
 }

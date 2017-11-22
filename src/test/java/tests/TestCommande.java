@@ -103,9 +103,9 @@ public class TestCommande {
      * modif valide
      * modif invalide 
      * 
-     * modif invalide -> livraison dÃ©jÃ  Ã©ffÃ©ctuÃ©e 
-     * modif invalide -> quantitÃ© nÃ©gative
-     * modif invalide -> produit inÃ©xistant 
+     * modif invalide -> livraison déjà  éfféctuée 
+     * modif invalide -> quantité négative
+     * modif invalide -> produit inéxistant 
      */
     @Test
     public void testModificationCommande() {
@@ -114,18 +114,69 @@ public class TestCommande {
     }
     
     /**
-     * Tests quand utilisateur supprimer une commande
-     *
-     * modif valide
-     * modif invalide 
-     * 
-     * modif invalide -> livraison dÃ©jÃ  Ã©ffÃ©ctuÃ©e  
+     * Tests quand utilisateur supprimer une commande  
      */
     @Test
-    public void testSuppressionCommande() {
+    public void testSuppressionCommande() {;
+        
+        // nombre de commandes avant suppression 
+        // suppression d'une commande
+        // nombre de commandes après suppression
+    
+        // TODO Verif que la commande a été supprimé 
+
+        
         fail("STUB");
        
     }
+    
+    /**
+     * Tests de modifications des stocks d'un produit
+     * 
+     * ajout de stock
+     * diminution du stock avec capacité suffisante
+     * 
+     * diminution de stock avec capacité insuffisante -> erreur
+     */
+    @Test 
+    public void testModifStock () {
+        
+        int produitID = 988765;
+        int qte = 25;
+
+        int ajoutQte = 5;
+        int retraitQte = 30;
+      
+        // ajout de stock
+        try {
+            myDAO.modificationStock(produitID, ajoutQte);
+            qte += ajoutQte;
+                    
+            assertTrue( myDAO.getProduit(produitID).getQuantityOnHand() == qte);
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        // suppresion de stock avec capacité suffisante
+        try {
+            myDAO.modificationStock(produitID, retraitQte);
+            qte -= retraitQte;
+                    
+            assertTrue( myDAO.getProduit(produitID).getQuantityOnHand() == qte);
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        // suppresion de stock avec capacité insuffisante
+        try {
+            myDAO.modificationStock(produitID, retraitQte);
+            fail("Modification stock échec : suppression de stock avec capacité insuffisante !");
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+    }
+    
     
     
 }

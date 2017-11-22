@@ -52,7 +52,6 @@ public class DAO {
     public boolean logInUser(String customerEmail, int customerID) throws DAOException{
         
         String name = null;
-        String email = null;
         
         // TODO Faire la requete SQL pour récupérer la ligne 
         // en fonction de l'email / customerID
@@ -65,8 +64,6 @@ public class DAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     name = rs.getString("NAME");
-                    email = rs.getString("EMAIL");
-                    //customer = new CustomerEntity(customerID, name, email);
                 }
             }
         } catch(SQLException e) {
@@ -74,8 +71,7 @@ public class DAO {
             throw new DAOException("Log in User : non implémenté");
         }
         
-        return email != null && name != null
-               && email.equals(customerEmail);
+        return name != null;
     }
     
     /**
@@ -230,13 +226,13 @@ public class DAO {
                     String productCode = rs.getString("PRODUCT_CODE");
                     float purchaseCode = rs.getFloat("PURCHASE_COST");
                     int quantityOnHand = rs.getInt("QUANTITY_ON_HAND");
-                    float marku = rs.getFloat("MARKUP");
+                    float markup = rs.getFloat("MARKUP");
                     String description = rs.getString("DESCRIPTION");
                     
                     
                     ProductEntity produit = new ProductEntity(
                             productId, manufacturerId, productCode, purchaseCode,
-                            quantityOnHand, marku, description);
+                            quantityOnHand, markup, description);
                     
                     listeProduct.add(produit);
                 }
@@ -315,6 +311,49 @@ public class DAO {
     }
     
     
+    /**
+     * @param produitID
+     * @return l'entité produit associé à ce produitID
+     * @throws DAOException 
+     */
+    public ProductEntity getProduit(int produitID) throws DAOException  {
+        
+        ProductEntity product = null;
+        
+        String rqtSql = "SELECT *"
+                + "FROM PRODUCT"
+                + "WHERE PRODUCT_ID = ?";
+        
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(rqtSql)) {
+            
+            pstmt.setInt(1, produitID);
+            
+            pstmt.executeQuery();
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int manufacturerId = rs.getInt("MANUFACTURER_ID");
+                    String productCode = rs.getString("PRODUCT_CODE");
+                    float purchaseCode = rs.getFloat("PURCHASE_COST");
+                    int quantityOnHand = rs.getInt("QUANTITY_HAND");
+                    float markup = rs.getFloat("MARKUP");
+                    String description = rs.getString("DESCRIPTION");
+                    
+                    product = new ProductEntity(produitID, manufacturerId, 
+                            productCode, purchaseCode, quantityOnHand, markup, 
+                            description);
+                }
+            }
+            
+        } catch(SQLException e) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+            throw new DAOException("Afficher commandes");
+        }
+        
+        return product;
+    }
+    
     
     /**
      * Ajout d'une commande pour ce client, en fonction de :
@@ -358,5 +397,31 @@ public class DAO {
         throw new DAOException("Suppression commande : non implémenté");
     }
     
+    /**
+     * Modification des stocks de ce produit
+     * @param produitID le numéro du produit 
+     * @param qte la quantité à ajouter ou retirer
+     * @throws DAOException 
+     */
+    public void modificationStock (int produitID, int qte) throws DAOException{
+        
+        String rqtSql = "UPDATE PRODUCT"
+                + "SET QUANTITY_ON_HAND = QUANTITY_ON_HAND + ?"
+                + "WHERE PRODUCT_ID = ?";
+        
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(rqtSql)) {
+            
+            pstmt.setInt(1, qte);
+            pstmt.setInt(2, produitID);
+            
+            pstmt.executeUpdate();
+            
+        } catch(SQLException e) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+            throw new DAOException("Afficher commandes");
+        }
+       
+    }
 
 }
