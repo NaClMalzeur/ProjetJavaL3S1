@@ -230,13 +230,13 @@ public class DAO {
                     String productCode = rs.getString("PRODUCT_CODE");
                     float purchaseCode = rs.getFloat("PURCHASE_COST");
                     int quantityOnHand = rs.getInt("QUANTITY_ON_HAND");
-                    float markup = rs.getFloat("MARKUP");
+                    float marku = rs.getFloat("MARKUP");
                     String description = rs.getString("DESCRIPTION");
                     
                     
                     ProductEntity produit = new ProductEntity(
                             productId, manufacturerId, productCode, purchaseCode,
-                            quantityOnHand, markup, description);
+                            quantityOnHand, marku, description);
                     
                     listeProduct.add(produit);
                 }
