@@ -5,8 +5,10 @@
  */
 package tests;
 
-import entitys.ProductEntity;
 import entitys.PurchaseOrderEntity;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,6 +22,9 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.hsqldb.cmdline.SqlFile;
+import org.hsqldb.cmdline.SqlToolError;
+
 /**
  *
  * @author afaure04
@@ -28,13 +33,26 @@ public class TestCommande {
     
     private DAO myDAO; // L'objet Ã  tester
     private DataSource myDataSource; // La source de donnÃ©es Ã  utiliser
-
+    private static Connection myConnection ;
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() throws IOException, SqlToolError, SQLException {
             myDataSource = DataSourceFactory.getDataSource();
+            myConnection = myDataSource.getConnection();
+            executeSQLScript(myConnection, "export.sql");		
+            
             myDAO = new DAO(myDataSource);
     }
+    
+    private void executeSQLScript(Connection connexion, String filename)  throws IOException, SqlToolError, SQLException {
+            // On initialise la base avec le contenu d'un fichier de test
+            String sqlFilePath = TestCommande.class.getResource(filename).getFile();
+            SqlFile sqlFile = new SqlFile(new File(sqlFilePath));
+
+            sqlFile.setConnection(connexion);
+            sqlFile.execute();
+            sqlFile.closeReader();		
+	}
 
     /**
      * Tests pour afficher les commandes d'un client
@@ -93,7 +111,32 @@ public class TestCommande {
      */
     @Test
     public void testAjoutCommande() {
-        fail("STUB");
+      
+        // nombre de commandes avant ajout
+        try {
+            int customerID = 2;
+            int productID = 980001;
+            List<PurchaseOrderEntity> commandes =
+                    myDAO.rqtCommandes(customerID, null, null, 0, null);
+            int nbCommandesAvant = commandes.size();
+            
+            // ajout d'une commande
+            PurchaseOrderEntity commande = 
+                    new PurchaseOrderEntity(2, customerID, productID, 3, 3,
+                            "2017-11-22", "2017-11-22", "JFC");
+            myDAO.ajoutCommande(commande);
+             
+            // nombre de commandes après ajout
+            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            int nbCommandesApres = commandes.size();
+             
+            // Verif que la commande a été ajout 
+            assertTrue(nbCommandesAvant + 1 == nbCommandesApres);
+            
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+            fail("Ajout commande echec : l'ajout à échouée !");
+        }
        
     }
     
@@ -114,20 +157,32 @@ public class TestCommande {
     }
     
     /**
-     * Tests quand utilisateur supprimer une commande  
+     * Tests quand utilisateur supprime une commande  
      */
     @Test
     public void testSuppressionCommande() {;
         
-        // nombre de commandes avant suppression 
-        // suppression d'une commande
-        // nombre de commandes après suppression
-    
-        // TODO Verif que la commande a été supprimé 
-
-        
-        fail("STUB");
-       
+        // nombre de commandes avant suppression
+        try {
+            int customerID = 2;
+            List<PurchaseOrderEntity> commandes =
+                    myDAO.rqtCommandes(customerID, null, null, 0, null);
+            int nbCommandesAvant = commandes.size();
+            
+            // suppression d'une commande
+            myDAO.suppressionCommande(commandes.get(0).getOrderNum());
+             
+            // nombre de commandes après suppression
+            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            int nbCommandesApres = commandes.size();
+             
+            // Verif que la commande a été supprimé 
+            assertTrue(nbCommandesAvant == nbCommandesApres + 1);
+            
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+            fail("Suppression commande echec : la suppression à échouée !");
+        }
     }
     
     /**
@@ -176,7 +231,4 @@ public class TestCommande {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
         } 
     }
-    
-    
-    
 }
