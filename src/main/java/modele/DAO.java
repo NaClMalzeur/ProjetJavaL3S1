@@ -9,9 +9,12 @@ import entitys.CustomerEntity;
 import entitys.ProductEntity;
 import entitys.PurchaseOrderEntity;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -102,7 +105,7 @@ public class DAO {
      * @throws DAOException si une erreur survient lors de l'obtention des 
      *  commandes ou si le client n'existe pas
      */
-    public List<PurchaseOrderEntity> afficherCommandes(PreparedStatement stmt)
+    public List<PurchaseOrderEntity> afficherCommandes(/*int customerID, String dateDebut, String dateFin*/PreparedStatement stmt)
             throws DAOException {
        
         // TODO : A VOIR POUR METTRE D'AUTRES ATT QUE CEUX DANS PURCHASE_ORDER
@@ -110,7 +113,9 @@ public class DAO {
        
         
         //String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ? AND SALES_DATE BETWEEN ? AND ?";
-        try {
+        //String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ? AND SHIPPING_DATE BETWEEN > SYSDATE";
+        try /*(Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql))*/ {
 
             /*stmt.setInt(1, customerID);
             stmt.setString(2, dateDebut);
@@ -139,13 +144,22 @@ public class DAO {
             throw new DAOException("Afficher commandes");
         }
         
-        
         return listeCommandes;
         //throw new DAOException("Afficher commandes : non implémenté");
         //return null; // STUB : TODO ECRIRE LE CODE
     }
     
-    public List<PurchaseOrderEntity> rqtCommandes(String dateDebut, String dateFin, int productId, String zipCode, int customerId)
+    /**
+     * 
+     * @param customerId
+     * @param dateDebut
+     * @param dateFin
+     * @param productId
+     * @param zipCode
+     * @return
+     * @throws DAOException 
+     */
+    public List<PurchaseOrderEntity> rqtCommandes(int customerId, String dateDebut, String dateFin, int productId, String zipCode)
         throws DAOException {
         
         String query = "SELECT * FROM PURCHASE_ORDER po ";
@@ -153,6 +167,10 @@ public class DAO {
         
         if (zipCode!=null){
             query += " JOIN CUSTOMER cus ON po.CUSTOMER_ID = cus.CUSTOMER_ID ";
+        }
+        if (customerId != 0){
+            query += comma + " po.CUSTOMER_ID = ? ";
+            comma = " AND ";
         }
         if (dateDebut != null){
             query += comma + " po.SALES_DATE > ? ";
@@ -167,21 +185,22 @@ public class DAO {
             comma = " AND ";
         }
         if (zipCode!=null){
-            query += comma + " AND cus.ZIP = ?";
-            comma = " AND ";
-        }
-        if (customerId != 0){
-            query += comma + " AND po.CUSTOMER_ID = ? ";
+            query += comma + " cus.ZIP = ?";
             comma = " AND ";
         }
         
         try (Connection connection = myDataSource.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query)) {
             
-            stmt.setString(1, dateDebut);
+            /*stmt.setString(1, dateDebut);
             stmt.setString(2, dateFin);
-            int index = 3;
+            */
+            int index = 1;
             
+            if (customerId != 0){
+                stmt.setInt(index, customerId);
+                index++;
+            }
             if (dateDebut != null){
                 stmt.setString(index, dateDebut);
                 index++;
@@ -198,13 +217,8 @@ public class DAO {
                 stmt.setString(index, zipCode);
                 index++;
             }
-            if (customerId != 0){
-                stmt.setInt(index, customerId);
-                index++;
-            }
             
             return afficherCommandes(stmt);
-
         } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
             throw new DAOException("Afficher commandes");
@@ -367,10 +381,34 @@ public class DAO {
      * @param produit le produit de la commande à ajouter dans la BD 
      * @throws modele.DAOException si l'ajout de ce produit échoue 
      */
-    public void ajoutCommande(ProductEntity produit) throws DAOException {
+    public void ajoutCommande(PurchaseOrderEntity commande) throws DAOException {
         
-        // TODO ECRIRE LE CORPS 
-        throw new DAOException("Ajout commande : non implémenté");
+        String sql = "INSERT INTO PURCHASE_ORDER (CUSTOMER_ID, PRODUCT_ID, QUANTITY, "
+                + "SHIPPING_COST, SALES_DATE, SHIPPING_DATE, FREIGHT_COMPANY) " 
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            
+                pstmt.setInt(1, commande.getCustomerId());
+                pstmt.setInt(2, commande.getProductId());
+                pstmt.setInt(3, commande.getQuantity());
+                pstmt.setFloat(4, commande.getShippingCost());
+                pstmt.setDate(5, new Date( dateFormat.parse(commande.getSalesDate()).getTime()));
+                pstmt.setDate(6, new Date( dateFormat.parse(commande.getShippingDate()).getTime()));
+                pstmt.setString(7, commande.getFreightCompany());
+            
+            pstmt.executeUpdate();
+            
+        } catch(SQLException e) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+            throw new DAOException("Ajout commande : une erreur est survenue");
+        } catch (ParseException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            throw new DAOException("Ajout commande : probleme de conversion de date !");
+        }
     }
     
     
@@ -387,14 +425,26 @@ public class DAO {
     
      
     /**
-     * Suppression de ce produit 
-     * @param produitID 
+     * Suppression de cette commande
+     * @param order_num 
      * @throws DAOException si la suppression de ce produit échoue 
      */
-    public void SuppressionCommande(int produitID) throws DAOException {
+    public void suppressionCommande(int order_num) throws DAOException {
         
-        // TODO ECRIRE LE CORPS 
-        throw new DAOException("Suppression commande : non implémenté");
+        String sql = "DELETE FROM PURCHASE_ORDER " +
+                        "WHERE ORDER_NUM = ?";
+        
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, order_num);
+            
+            pstmt.executeUpdate();
+            
+        } catch(SQLException e) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+            throw new DAOException("Suppression commande : une erreur est survenue");
+        }
     }
     
     /**
@@ -421,7 +471,6 @@ public class DAO {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
             throw new DAOException("Afficher commandes");
         }
-       
     }
 
 }
