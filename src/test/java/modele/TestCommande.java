@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tests;
+package modele;
 
 import entitys.PurchaseOrderEntity;
 import java.io.File;
@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
-import modele.DAO;
-import modele.DAOException;
-import modele.DataSourceFactory;
 import static org.junit.Assert.*;
 import static org.junit.Assert.fail;
 import org.junit.Before;
@@ -24,6 +21,7 @@ import org.junit.Test;
 
 import org.hsqldb.cmdline.SqlFile;
 import org.hsqldb.cmdline.SqlToolError;
+import org.junit.After;
 
 /**
  *
@@ -37,23 +35,37 @@ public class TestCommande {
 
     @Before
     public void setUp() throws IOException, SqlToolError, SQLException {
-            myDataSource = DataSourceFactory.getDataSource();
-            myConnection = myDataSource.getConnection();
-            executeSQLScript(myConnection, "export.sql");		
-            
-            myDAO = new DAO(myDataSource);
+        myDataSource = /*DataSourceFactory.*/getDataSource();
+        myConnection = myDataSource.getConnection();
+        executeSQLScript(myConnection, "export.sql");		
+
+        myDAO = new DAO(myDataSource);
+    }
+    
+    public static DataSource getDataSource() throws SQLException {
+        org.hsqldb.jdbc.JDBCDataSource ds = new org.hsqldb.jdbc.JDBCDataSource();
+        ds.setDatabase("jdbc:hsqldb:mem:testcase;shutdown=true");
+        ds.setUser("sa");
+        ds.setPassword("sa");
+        return ds;
     }
     
     private void executeSQLScript(Connection connexion, String filename)  throws IOException, SqlToolError, SQLException {
-            // On initialise la base avec le contenu d'un fichier de test
-            String sqlFilePath = TestCommande.class.getResource(filename).getFile();
-            SqlFile sqlFile = new SqlFile(new File(sqlFilePath));
+        // On initialise la base avec le contenu d'un fichier de test
+        String sqlFilePath = TestCommande.class.getResource(filename).getFile();
+        SqlFile sqlFile = new SqlFile(new File(sqlFilePath));
 
-            sqlFile.setConnection(connexion);
-            sqlFile.execute();
-            sqlFile.closeReader();		
-	}
+        sqlFile.setConnection(connexion);
+        sqlFile.execute();
+        sqlFile.closeReader();		
+    }
+    
+    @After
+    public void tearDown() throws IOException, SqlToolError, SQLException {
+        myConnection.close();
 
+    }
+    
     /**
      * Tests pour afficher les commandes d'un client
      * 
@@ -164,7 +176,7 @@ public class TestCommande {
         
         // nombre de commandes avant suppression
         try {
-            int customerID = 2;
+            int customerID = 36;
             List<PurchaseOrderEntity> commandes =
                     myDAO.rqtCommandes(customerID, null, null, 0, null);
             int nbCommandesAvant = commandes.size();
