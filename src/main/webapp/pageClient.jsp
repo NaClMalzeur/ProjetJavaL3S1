@@ -9,9 +9,9 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>MEGA ERP : Partie client</title>
+        <title>PARTIE CLIENT : MINI PROJET</title>
     </head>
     <body>
-        <h1>Partie client: </h1>
+        <h1>Projet : Partie client</h1>
     </body>
 </html>
