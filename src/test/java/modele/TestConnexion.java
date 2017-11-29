@@ -6,6 +6,9 @@ package modele;
  * and open the template in the editor.
  */
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,6 +16,8 @@ import javax.sql.DataSource;
 import modele.DAO;
 import modele.DAOException;
 import modele.DataSourceFactory;
+import org.hsqldb.cmdline.SqlFile;
+import org.hsqldb.cmdline.SqlToolError;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,14 +33,40 @@ public class TestConnexion {
     
     private DAO myDAO; // L'objet Ã  tester
     private DataSource myDataSource; // La source de donnÃ©es Ã  utiliser
-
+    private static Connection myConnection ;
 
     @Before
-    public void setUp() throws SQLException {
-            myDataSource = DataSourceFactory.getDataSource();
-            myDAO = new DAO(myDataSource);
+    public void setUp() throws IOException, SqlToolError, SQLException {
+        myDataSource = /*DataSourceFactory.*/getDataSource();
+        myConnection = myDataSource.getConnection();
+        executeSQLScript(myConnection, "export.sql");		
+
+        myDAO = new DAO(myDataSource);
     }
     
+    public static DataSource getDataSource() throws SQLException {
+        org.hsqldb.jdbc.JDBCDataSource ds = new org.hsqldb.jdbc.JDBCDataSource();
+        ds.setDatabase("jdbc:hsqldb:mem:testcase;shutdown=true");
+        ds.setUser("sa");
+        ds.setPassword("sa");
+        return ds;
+    }
+    
+    private void executeSQLScript(Connection connexion, String filename)  throws IOException, SqlToolError, SQLException {
+        // On initialise la base avec le contenu d'un fichier de test
+        String sqlFilePath = TestCommande.class.getResource(filename).getFile();
+        SqlFile sqlFile = new SqlFile(new File(sqlFilePath));
+
+        sqlFile.setConnection(connexion);
+        sqlFile.execute();
+        sqlFile.closeReader();		
+    }
+    
+    @After
+    public void tearDown() throws IOException, SqlToolError, SQLException {
+        myConnection.close();
+
+    }
     /**
      * Test de connexion avec des comptes utilisateurs
      * selon leur email et customer ID

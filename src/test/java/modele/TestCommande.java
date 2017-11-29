@@ -5,6 +5,7 @@
  */
 package modele;
 
+import entitys.ProductEntity;
 import entitys.PurchaseOrderEntity;
 import java.io.File;
 import java.io.IOException;
@@ -134,7 +135,7 @@ public class TestCommande {
             
             // ajout d'une commande
             PurchaseOrderEntity commande = 
-                    new PurchaseOrderEntity(2, customerID, productID, 3, 3,
+                    new PurchaseOrderEntity(1111, customerID, productID, 3, 3,
                             "2017-11-22", "2017-11-22", "JFC");
             myDAO.ajoutCommande(commande);
              
@@ -147,7 +148,7 @@ public class TestCommande {
             
         } catch (DAOException ex) {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
-            fail("Ajout commande echec : l'ajout à échouée !");
+            fail(ex.getMessage());
         }
        
     }
@@ -158,14 +159,108 @@ public class TestCommande {
      * modif valide
      * modif invalide 
      * 
-     * modif invalide -> livraison déjà  éfféctuée 
      * modif invalide -> quantité négative
+     * modif invalide -> quantité indisponible
      * modif invalide -> produit inéxistant 
      */
     @Test
     public void testModificationCommande() {
-        fail("STUB");
+        
+        int customerID;
+        int productID;
+        int qte;
+        List<PurchaseOrderEntity> commandes;
+        PurchaseOrderEntity commandeModifiee;
+        
+        // modification valide
+        try {
+            customerID = 3;
+            productID = 980030; // qté = 250   
+            qte = 200;
+            
+            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            
+            ProductEntity produit = myDAO.getProduit(productID);
+            
+            commandeModifiee = commandes.get(0);
+            commandeModifiee.setProductId(productID);
+            commandeModifiee.setQuantity(qte);
+            
+            myDAO.modificationCommande(commandeModifiee);
+            
+            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            
+            // vérification commande à la bonne quantité et stock baissé
+            assertTrue(commandes.get(0).getProductId() == commandeModifiee.getProductId()
+                    && commandes.get(0).getQuantity() == qte
+                    /*&& myDAO.getProduit(productID).getQuantityOnHand() == produit.getQuantityOnHand() - qte*/);
+           
+            
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+            fail(ex.getMessage());
+        }
        
+        // quantité négative
+        try {
+            customerID = 3;
+            productID = 980030;  
+            qte = -5;
+            
+           commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            
+            commandeModifiee = commandes.get(0);
+            commandeModifiee.setProductId(productID);
+            commandeModifiee.setQuantity(qte);
+            
+            myDAO.modificationCommande(commandeModifiee);
+            
+            fail("Modification commande : échec sur quantité négative !");
+            
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        // quantité indisponible
+        /*try {
+            customerID = 3;
+            productID = 980030;  
+            qte = 251;
+            
+            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            
+            commandeModifiee = commandes.get(0);
+            commandeModifiee.setProductId(productID);
+            commandeModifiee.setQuantity(qte);
+            
+            myDAO.modificationCommande(commandeModifiee);
+            
+            fail("Modification commande : échec sur quantité indisponible !");
+            
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+        
+        // produit inéxistant
+        try {
+            customerID = 1;
+            productID = -1;
+            qte = 1;
+            
+            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+
+            commandeModifiee = commandes.get(0);
+            commandeModifiee.setProductId(productID);
+            commandeModifiee.setQuantity(qte);
+            
+            
+            myDAO.modificationCommande(commandeModifiee);
+            fail("Modification commande : échec sur  produit inéxistant!");
+            
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
     /**
@@ -182,7 +277,7 @@ public class TestCommande {
             int nbCommandesAvant = commandes.size();
             
             // suppression d'une commande
-            myDAO.suppressionCommande(commandes.get(0).getOrderNum());
+            myDAO.suppressionCommande(commandes.get(0));
              
             // nombre de commandes après suppression
             commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
@@ -205,14 +300,14 @@ public class TestCommande {
      * 
      * diminution de stock avec capacité insuffisante -> erreur
      */
-    @Test 
+    /*@Test 
     public void testModifStock () {
         
         int produitID = 988765;
         int qte = 25;
 
         int ajoutQte = 5;
-        int retraitQte = 30;
+        int retraitQte = -30;
       
         // ajout de stock
         try {
@@ -222,16 +317,18 @@ public class TestCommande {
             assertTrue( myDAO.getProduit(produitID).getQuantityOnHand() == qte);
         } catch (DAOException ex) {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+            fail("Modif stock : " + ex.getMessage());
         }
         
         // suppresion de stock avec capacité suffisante
         try {
             myDAO.modificationStock(produitID, retraitQte);
-            qte -= retraitQte;
+            qte += retraitQte;
                     
             assertTrue( myDAO.getProduit(produitID).getQuantityOnHand() == qte);
         } catch (DAOException ex) {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+            fail("Modif stock : " + ex.getMessage());
         }
         
         
@@ -242,5 +339,5 @@ public class TestCommande {
         } catch (DAOException ex) {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
         } 
-    }
+    }*/
 }
