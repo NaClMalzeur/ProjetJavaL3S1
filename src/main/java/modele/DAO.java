@@ -71,7 +71,7 @@ public class DAO {
             }
         } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            throw new DAOException("Log in User : non implémenté");
+            throw new DAOException("Log in User : " + e.getMessage());
         }
         
         return name != null;
@@ -136,7 +136,7 @@ public class DAO {
             }
         } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            throw new DAOException("Afficher commandes");
+            throw new DAOException("Afficher commandes " + e.getMessage());
         }
         
         return listeCommandes;

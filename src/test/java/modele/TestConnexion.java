@@ -13,9 +13,6 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
-import modele.DAO;
-import modele.DAOException;
-import modele.DataSourceFactory;
 import org.hsqldb.cmdline.SqlFile;
 import org.hsqldb.cmdline.SqlToolError;
 import org.junit.After;
@@ -37,7 +34,7 @@ public class TestConnexion {
 
     @Before
     public void setUp() throws IOException, SqlToolError, SQLException {
-        myDataSource = /*DataSourceFactory.*/getDataSource();
+        myDataSource = DataSourceFactory.getDataSource();
         myConnection = myDataSource.getConnection();
         executeSQLScript(myConnection, "export.sql");		
 

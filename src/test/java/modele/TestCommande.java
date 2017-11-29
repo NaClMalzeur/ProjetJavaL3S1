@@ -36,19 +36,11 @@ public class TestCommande {
 
     @Before
     public void setUp() throws IOException, SqlToolError, SQLException {
-        myDataSource = /*DataSourceFactory.*/getDataSource();
+        myDataSource = DataSourceFactory.getDataSource();
         myConnection = myDataSource.getConnection();
         executeSQLScript(myConnection, "export.sql");		
 
         myDAO = new DAO(myDataSource);
-    }
-    
-    public static DataSource getDataSource() throws SQLException {
-        org.hsqldb.jdbc.JDBCDataSource ds = new org.hsqldb.jdbc.JDBCDataSource();
-        ds.setDatabase("jdbc:hsqldb:mem:testcase;shutdown=true");
-        ds.setUser("sa");
-        ds.setPassword("sa");
-        return ds;
     }
     
     private void executeSQLScript(Connection connexion, String filename)  throws IOException, SqlToolError, SQLException {
@@ -64,7 +56,38 @@ public class TestCommande {
     @After
     public void tearDown() throws IOException, SqlToolError, SQLException {
         myConnection.close();
-
+    }
+    
+    @Test
+    public void testAllProduits() {
+        List<ProductEntity> produits;
+        ProductEntity toFind;
+        int produitID = 980001;
+        int produitIDInexistant = -1;
+        
+        try {
+            produits = myDAO.allProducts();
+            toFind = null;
+            for(ProductEntity p : produits) 
+                if(p.getProductId() == produitID) 
+                    toFind = p;
+            
+            assertNotNull(toFind);
+            
+            
+            toFind = null;
+            for(ProductEntity p : produits) 
+                if(p.getProductId() == produitIDInexistant) 
+                    toFind = p;
+            assertNull(toFind);
+            
+        } catch (DAOException ex) {
+            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
+            fail("All produits : " + ex.getMessage());
+        }
+        
+        
+    
     }
     
     /**
@@ -199,9 +222,21 @@ public class TestCommande {
         } catch (DAOException ex) {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
             fail(ex.getMessage());
-        }
-       
-        // quantité négative
+        } 
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void testModificationCommandeFail() {
+        int customerID;
+        int productID;
+        int qte;
+        List<PurchaseOrderEntity> commandes;
+        PurchaseOrderEntity commandeModifiee;
+        
+         // quantité négative
         try {
             customerID = 3;
             productID = 980030;  
