@@ -78,8 +78,8 @@ public class TestConnexion {
         String email = "jumboeagle@example.com";
         String emailIncorrect = "Email Incorrect";
         
-        int customerID = 1;
-        int customerIDIncorrect = -1;
+        String customerID = "1";
+        String customerIDIncorrect = "-1";
         
         // email correct / customer ID correct -> correct
         try {

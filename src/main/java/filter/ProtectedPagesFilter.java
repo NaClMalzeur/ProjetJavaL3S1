@@ -1,4 +1,4 @@
-package filters;
+package filter;
 
 import java.io.IOException;
 import javax.servlet.Filter;
@@ -27,11 +27,11 @@ public class ProtectedPagesFilter implements Filter {
 		throws IOException, ServletException {
 		try {
 			HttpSession session = ((HttpServletRequest) request).getSession(false);
-			if (session != null && session.getAttribute("userName") != null) {// connecté, on traite la requête			
+			if (session != null && session.getAttribute("role").equals("user")) {// connecté, on traite la requête			
 				chain.doFilter(request, response);
 			} else {
 				// Pas connecté, on va vers la page de login (racine)
-				((HttpServletResponse) response).sendRedirect("connexion.jsp/");
+				((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request).getContextPath() + "connexion.jsp/");
 			}
 		} catch (IOException | ServletException t) {
 		}

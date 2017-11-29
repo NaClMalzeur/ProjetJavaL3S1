@@ -52,7 +52,7 @@ public class DAO {
      *         false sinon
      * @throws modele.DAOException si une erreur survient lors du traitement BD 
      */
-    public boolean logInUser(String customerEmail, int customerID) throws DAOException{
+    public boolean logInUser(String customerEmail, String customerID) throws DAOException{
         
         String name = null;
         
@@ -63,7 +63,7 @@ public class DAO {
             PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, customerEmail);
-            stmt.setInt(2, customerID);
+            stmt.setString(2, customerID);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     name = rs.getString("NAME");

@@ -41,29 +41,47 @@ public class ServletControleur extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             
+            String action = request.getParameter("action");
             DAO  myDAO = new DAO(DataSourceFactory.getDataSource());
-            
-            // vérification que l'utilisateur est connecté
-            String userName = findUserInSession(request);
-            String pageJsp;
-            if (userName == null) { // L'utilisateur n'est pas connecté
-                    pageJsp = "connexion.jsp";
-            } else { // L'utilisateur est connecté
-                    // on vérifie si admin ou client
-                    
-                    String login = request.getParameter("loginParam");
-                    String password = request.getParameter("passwordParam");
-                    
-                    if (myDAO.logInAdmin(login, password))
-                        pageJsp = "pageAdmin.jsp";
-                    else  if (myDAO.logInUser(login, Integer.parseInt(password)))
-                        pageJsp = "pageAdmin.jsp";
-                    else 
-                        pageJsp = "connexion.jsp";
+            switch (action) {
+		case "CONNEXION":
+					
+					
+                    // vérification que l'utilisateur est connecté
+                    String userName = findUserInSession(request);
+                    String pageJsp;
+                    if (userName == null) { // L'utilisateur n'est pas connecté
+                            pageJsp = "connexion.jsp";
+                    } else { // L'utilisateur est connecté
+                            // on vérifie si admin ou client
+
+                            String login = request.getParameter("loginParam");
+                            String password = request.getParameter("passwordParam");
+
+                            if (myDAO.logInAdmin(login, password)){
+                                HttpSession session = request.getSession(true); // démarre la session
+                                session.setAttribute("role", "admin");
+                                session.setAttribute("userName", userName);
+                                session.setAttribute("userId", password);
+                                pageJsp = "pageAdmin.jsp";
+                            }else  if (myDAO.logInUser(login, password)){
+                                HttpSession session = request.getSession(true); // démarre la session
+                                session.setAttribute("role", "user");
+                                session.setAttribute("userName", userName);
+                                session.setAttribute("userId", password);
+                                pageJsp = "pageAdmin.jsp";
+                            }else{
+                                pageJsp = "connexion.jsp";
+                                request.setAttribute("errorMessage", "Login/Password incorrect");
+                            }
+                    }
+
+                    request.getRequestDispatcher(pageJsp).forward(request, response);
+                    break;
+                case "logout":
+                    doLogout(request);
+                    break;
             }
-           
-            request.getRequestDispatcher(pageJsp).forward(request, response);
-            
         } catch (SQLException ex) {
             Logger.getLogger(ServletControleur.class.getName()).log(Level.SEVERE, null, ex);
         } catch (DAOException ex) {
