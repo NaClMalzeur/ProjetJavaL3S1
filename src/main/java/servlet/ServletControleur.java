@@ -53,6 +53,7 @@ public class ServletControleur extends HttpServlet {
             String action = request.getParameter("action");
             String dateDebut = request.getParameter("dateDebut");
             String dateFin = request.getParameter("dateFin");
+            System.out.println(action);
             switch (action) {
 		case "CONNEXION":
                     String pageJsp = checkLogin(request);
@@ -67,12 +68,27 @@ public class ServletControleur extends HttpServlet {
                     
                     break;
                 case "pageClient":
-                    //int id = session.setAttribute("userId");
+                    //int id = session.getAttribute("userId");
                     int id = 1;
                     List<PurchaseOrderEntity> lst = myDAO.rqtCommandes(id, null, null, 0, null);
                     gsonData = gson.toJson(lst);
-                    out.println(gsonData);
+                    out.println(gsonData);  
                     System.out.println(lst.size());
+                    
+                    break;
+                case "Ajout":
+                    int idCom = 900;
+                    int idCli = 1;
+                    System.out.println("TEST1");
+                    int productId = Integer.parseInt(request.getParameter("productId"));
+                    System.out.println("TEST2");
+                    int quantity = Integer.parseInt(request.getParameter("quantity"));
+                    float shippingCost = Float.parseFloat(request.getParameter("shippingCost"));
+                    String salesDate = request.getParameter("salesDate");
+                    String shippingDate = request.getParameter("shippingDate");
+                    String freightCompany = request.getParameter("freightCompany");
+                    PurchaseOrderEntity com = new PurchaseOrderEntity(idCom, idCli, productId, quantity, shippingCost, salesDate, shippingDate, freightCompany);
+                    myDAO.ajoutCommande(com);
                     
                     break;
                 case "pageAdminItem":

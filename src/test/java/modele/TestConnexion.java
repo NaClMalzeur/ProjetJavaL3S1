@@ -32,7 +32,7 @@ public class TestConnexion {
 
     @Before
     public void setUp() throws IOException, SqlToolError, SQLException {
-        myDataSource = DataSourceFactory.getDataSource();
+        myDataSource = DataSourceFactory.getDataSourceTest();
         myConnection = myDataSource.getConnection();
         executeSQLScript(myConnection, "export.sql");		
 

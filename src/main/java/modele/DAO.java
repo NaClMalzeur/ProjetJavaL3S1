@@ -184,14 +184,11 @@ public class DAO {
             query += comma + " cus.ZIP = ?";
             comma = " AND ";
         }
-        System.out.println("test1");
         query += " ORDER BY po.ORDER_NUM";
-        System.out.println(query);
         try (Connection con = myDataSource.getConnection();
             PreparedStatement stmt = con.prepareStatement(query)) {
 
             int index = 1;
-            System.out.println("test2");
             if (customerId != 0){
                 stmt.setInt(index, customerId);
                 index++;
@@ -212,7 +209,6 @@ public class DAO {
                 stmt.setString(index, zipCode);
                 index++;
             }
-            System.out.println("test3");
             return afficherCommandes(stmt);
         } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
@@ -375,6 +371,7 @@ public class DAO {
      * @throws modele.DAOException si l'ajout de ce produit échoue 
      */
     public void ajoutCommande(PurchaseOrderEntity commande) throws DAOException {
+        System.out.println("Ajout de la commande");
         
         String sql = "INSERT INTO PURCHASE_ORDER "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
