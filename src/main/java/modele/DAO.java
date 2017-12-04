@@ -17,6 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
@@ -156,8 +157,8 @@ public class DAO {
      */
     public List<PurchaseOrderEntity> rqtCommandes(int customerId, String dateDebut, String dateFin, int productId, String zipCode)
         throws DAOException {
-        
-        String query = "SELECT * FROM PURCHASE_ORDER po ";
+        System.out.println("id = " + customerId);
+        String query = "SELECT * FROM purchase_order po ";
         String comma = " WHERE ";
         
         if (zipCode!=null){
@@ -183,17 +184,14 @@ public class DAO {
             query += comma + " cus.ZIP = ?";
             comma = " AND ";
         }
-        
+        System.out.println("test1");
         query += " ORDER BY po.ORDER_NUM";
-        
-        try (Connection connection = myDataSource.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(query)) {
-            
-            /*stmt.setString(1, dateDebut);
-            stmt.setString(2, dateFin);
-            */
+        System.out.println(query);
+        try (Connection con = myDataSource.getConnection();
+            PreparedStatement stmt = con.prepareStatement(query)) {
+
             int index = 1;
-            
+            System.out.println("test2");
             if (customerId != 0){
                 stmt.setInt(index, customerId);
                 index++;
@@ -214,7 +212,7 @@ public class DAO {
                 stmt.setString(index, zipCode);
                 index++;
             }
-            
+            System.out.println("test3");
             return afficherCommandes(stmt);
         } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
@@ -493,4 +491,60 @@ public class DAO {
         }
     }
 
+    public Map<String,Integer> chiffreAffaire(boolean byItem, boolean byZip, boolean byCustomer, String dateDebut, String dateFin){
+        Map<String,Integer> map = null;
+        String query = "";
+        String comma = " WHERE ";
+        if(byItem){
+            query = "SELECT SUM(p.purchase_cost*po.quantity), p.product_id FROM purchase_order po JOIN product p ON p.product_id=po.product_id ";
+            if(dateDebut != null){
+                query += comma + " po.shipping_date > ? ";
+                comma = " AND ";
+            }
+            if(dateFin != null){
+                query += comma + " po.shipping_date < ? ";
+            }
+            query = " GROUP BY p.product_id";
+        }else if(byZip){
+            query = "SELECT SUM(p.purchase_cost*po.quantity), c.zip FROM purchase_order po JOIN product p ON p.product_id=po.product_id JOIN customer c ON c.customer_id = po.customer_id ";
+            if(dateDebut != null){
+                query += comma + " po.shipping_date > ? ";
+                comma = " AND ";
+            }
+            if(dateFin != null){
+                query += comma + " po.shipping_date < ? ";
+            }
+            query += " GROUP BY c.zip";
+        }else if(byCustomer){
+            query = "SELECT SUM(p.purchase_cost*po.quantity), po.customer_id FROM purchase_order po JOIN product p ON p.product_id=po.product_id";
+            if(dateDebut != null){
+                query += comma + " po.shipping_date > ? ";
+                comma = " AND ";
+            }
+            if(dateFin != null){
+                query += comma + " po.shipping_date < ? ";
+            }
+            query += " GROUP BY po.customer_id";
+        }
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+            if(dateDebut != null){
+                stmt.setString(0, dateDebut);
+                if(dateFin != null)
+                    stmt.setString(1, dateFin);
+            }else if(dateFin != null){
+                stmt.setString(0, dateFin);
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int ca = rs.getInt(1);
+                    String id = rs.getString(2);
+                    map.put(id,ca);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return map;
+    }
 }

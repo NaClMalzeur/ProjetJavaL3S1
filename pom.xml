@@ -27,11 +27,22 @@
             <version>2.0.0</version>
             <type>jar</type>
         </dependency>
-        
-         <!-- Derby network client JDBC driver -->
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- For deployment to tomcat, which does not provide the JSTL -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>		
+        <!-- Derby embedded database and JDBC Driver -->
         <dependency>
             <groupId>org.apache.derby</groupId>
-            <artifactId>derbyclient</artifactId>
+            <artifactId>derby</artifactId>
             <version>10.14.1.0</version>
         </dependency>
         <!-- Derby network client JDBC driver -->
@@ -40,11 +51,17 @@
             <artifactId>derbyclient</artifactId>
             <version>10.14.1.0</version>
         </dependency>
+        <!-- Derby tols (for initializing database from SQL script) -->
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>7.0</version>
-            <type>jar</type>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
+            <version>10.14.1.0</version>
+        </dependency>	
+        <!-- for generating JSON -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -57,12 +74,6 @@
             <artifactId>hamcrest-core</artifactId>
             <version>1.3</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>7.0</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

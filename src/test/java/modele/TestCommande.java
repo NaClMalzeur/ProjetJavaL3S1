@@ -109,8 +109,8 @@ public class TestCommande {
         int nbCommandes2 = 1;
        
         // Test pour un premier client valide
-        /*try {
-             listeCommandes = myDAO.afficherCommandes(customerIDExistant1);
+        try {
+             listeCommandes = myDAO.rqtCommandes(customerIDExistant1, null, null, 0, null);
              assertEquals(listeCommandes.size(), nbCommandes1);
         } catch (DAOException ex) {
              Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,7 +119,7 @@ public class TestCommande {
         
         // Test pour un second client valide
         try {
-            listeCommandes = myDAO.afficherCommandes(customerIDExistant2);
+            listeCommandes = myDAO.rqtCommandes(customerIDExistant2, null, null, 0, null);
             assertEquals(listeCommandes.size(), nbCommandes2);
         } catch (DAOException ex) {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
@@ -129,11 +129,13 @@ public class TestCommande {
         
         // Test pour un client non valide
         try {
-            myDAO.afficherCommandes(customerIDNonExistant);
-            fail("ECHEC Test afficher commandes : réussite sur un client inéxistant"); 
+            listeCommandes = myDAO.rqtCommandes(customerIDNonExistant, null, null, 0, null);
+            if (!listeCommandes.isEmpty())
+                fail("ECHEC Test afficher commandes : des lignes sur un client inéxistant " + listeCommandes.size()); 
         } catch (DAOException ex) {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+            fail("ECHEC Test afficher commandes : échec sur un client inéxistant");
+        }
     }
     
     
@@ -327,52 +329,4 @@ public class TestCommande {
         }
     }
     
-    /**
-     * Tests de modifications des stocks d'un produit
-     * 
-     * ajout de stock
-     * diminution du stock avec capacité suffisante
-     * 
-     * diminution de stock avec capacité insuffisante -> erreur
-     */
-    /*@Test 
-    public void testModifStock () {
-        
-        int produitID = 988765;
-        int qte = 25;
-
-        int ajoutQte = 5;
-        int retraitQte = -30;
-      
-        // ajout de stock
-        try {
-            myDAO.modificationStock(produitID, ajoutQte);
-            qte += ajoutQte;
-                    
-            assertTrue( myDAO.getProduit(produitID).getQuantityOnHand() == qte);
-        } catch (DAOException ex) {
-            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
-            fail("Modif stock : " + ex.getMessage());
-        }
-        
-        // suppresion de stock avec capacité suffisante
-        try {
-            myDAO.modificationStock(produitID, retraitQte);
-            qte += retraitQte;
-                    
-            assertTrue( myDAO.getProduit(produitID).getQuantityOnHand() == qte);
-        } catch (DAOException ex) {
-            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
-            fail("Modif stock : " + ex.getMessage());
-        }
-        
-        
-        // suppresion de stock avec capacité insuffisante
-        try {
-            myDAO.modificationStock(produitID, retraitQte);
-            fail("Modification stock échec : suppression de stock avec capacité insuffisante !");
-        } catch (DAOException ex) {
-            Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-    }*/
 }

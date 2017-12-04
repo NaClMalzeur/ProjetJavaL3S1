@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>PAGE CLIENT : MINI PROJET</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+            <script>
+                $(document).ready(// Exécuté à la fin du chargement de la page
+                    function () {
+                        // On montre la liste des codes
+                        showCommandes();
+                    }
+                );
+        
+                function showCommandes(){
+                    console.log("test");
+                    $.ajax({
+                        url: "ServletControleur",
+                        dataType: "json",
+                        data: {"action": "pageClient"},
+                        //error: showError,
+                        success: // La fonction qui traite les résultats
+                                function (result) {
+                                    console.log(result);
+                                    // Le code source du template est dans la page
+                                    //var template = $('#codesTemplate').html();
+                                    // On combine le template avec le résultat de la requête
+                                    //var processedTemplate = Mustache.to_html(template, result);
+                                    // On affiche la liste des options dans le select
+                                    //$('#codes').html(processedTemplate);
+                                }
+                    });
+                }
+            </script>
+    </head>
+    <body>
+        <div>TODO write content</div>
+    </body>
+</html>
