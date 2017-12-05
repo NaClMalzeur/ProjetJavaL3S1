@@ -82,12 +82,10 @@ public class ServletControleur extends HttpServlet {
                     myDAO.modificationCommande(productId, quantity, idCom);
                     
                     break;
-                case "Ajout":
+                case "ajout":
                     idCom = -1;
                     idCli = 2;
-                    System.out.println("TEST1");
                     productId = Integer.parseInt(request.getParameter("productId"));
-                    System.out.println("TEST2");
                     quantity = Integer.parseInt(request.getParameter("quantity"));
                     float shippingCost = Float.parseFloat(request.getParameter("shippingCost"));
                     String salesDate = request.getParameter("salesDate");

@@ -559,7 +559,8 @@ public class DAO {
                     map.put(id,ca);
                 }
             }
-        System.out.println(map.size());
+            if(byCustomer)
+                System.out.println(map.values());
         } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         }

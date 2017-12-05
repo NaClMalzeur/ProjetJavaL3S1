@@ -85,17 +85,16 @@ and open the template in the editor.
                 
                 
                 function addCommande(){
-                    console.log($("#ajoutCom").serialize());
                     $.ajax({
                         url: "ServletControleur",
-                        data: $("#ajoutCom").serialize()
+                        data: $("#ajoutCom").serialize()+"&action=ajout"
                     });
                     showCommandes();
                 }
             </script>
     </head>
     <body>
-        <form id='ajoutCom' onsubmit='addCommande();'>
+        <form id='ajoutCom' onsubmit='event.preventDefault(); addCommande();'>
             <label>Product ID   </label><input type="text" id='productId' name="productId"/><br/>
             <label>Quantity   </label><input type="number" step='1' id='quantity' name="quantity"/><br/>
             <label>Prix de livraison   </label><input type="number" step='0.01' name="shippingCost"/>€<br/>
