@@ -54,7 +54,7 @@ public class DAO {
      *         false sinon
      * @throws modele.DAOException si une erreur survient lors du traitement BD 
      */
-    public boolean logInUser(String customerEmail, String customerID) throws DAOException{
+    public String logInUser(String customerEmail, String customerID) throws DAOException{
         
         String name = null;
         
@@ -76,7 +76,7 @@ public class DAO {
             throw new DAOException("Log in User : " + e.getMessage());
         }
         
-        return name != null;
+        return name;
     }
     
     /**

@@ -27,8 +27,7 @@ and open the template in the editor.
                         success: // La fonction qui traite les résultats
                                 function (result) {
                                     console.log(result);
-                                },
-                        error: showError
+                                }
                     });
                     
                     $.ajax({
@@ -38,8 +37,7 @@ and open the template in the editor.
                         success: // La fonction qui traite les résultats
                                 function (result) {
                                     console.log(result);
-                                },
-                        error: showError
+                                }
                     });
                     
                     $.ajax({
@@ -49,19 +47,21 @@ and open the template in the editor.
                         success: // La fonction qui traite les résultats
                                 function (result) {
                                     console.log(result);
-                                },
-                        error: showError
+                                }
                     });
-                }
-                
-                
-                // Fonction qui traite les erreurs de la requête
-                function showError(xhr, status, message) {
-                    alert(JSON.parse(xhr.responseText).message);
                 }
             </script>
     </head>
     <body>
+        
+        <form>
+            <button type='submit' name="action"  value="logout">
+                <img src="btn_logout.png" alt="Bouton de déconnection" height="50" width="50">
+            </button>
+        </form> 
+        
+        <H1>PAGE ADMIN</H1>
+        
         <div>TODO write content</div>
     </body>
 </html>

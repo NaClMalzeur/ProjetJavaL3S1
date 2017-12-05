@@ -49,7 +49,7 @@ public class TestConnexion {
     
     private void executeSQLScript(Connection connexion, String filename)  throws IOException, SqlToolError, SQLException {
         // On initialise la base avec le contenu d'un fichier de test
-        String sqlFilePath = TestCommande.class.getResource(filename).getFile();
+        String sqlFilePath = TestConnexion.class.getResource(filename).getFile();
         SqlFile sqlFile = new SqlFile(new File(sqlFilePath));
 
         sqlFile.setConnection(connexion);
@@ -73,6 +73,8 @@ public class TestConnexion {
     @Test
     public void testConnexionUser() {
         
+        String userName = "Jumbo Eagle Corp";
+        
         String email = "jumboeagle@example.com";
         String emailIncorrect = "Email Incorrect";
         
@@ -82,7 +84,7 @@ public class TestConnexion {
         // email correct / customer ID correct -> correct
         try {
             myDAO.logInUser(email, customerID);
-            assertTrue(myDAO.logInUser(email, customerID));
+            assertTrue(myDAO.logInUser(email, customerID).equals(userName));
         } catch (DAOException ex) {
             Logger.getLogger(TestConnexion.class.getName()).log(Level.SEVERE, null, ex);
             fail("ECHEC Test afficher commandes : échec sur un client existant"); 
@@ -91,7 +93,7 @@ public class TestConnexion {
         // email correct / customer ID incorrect -> incorrect
         try {
             myDAO.logInUser(email, customerID);
-            assertFalse(myDAO.logInUser(email, customerIDIncorrect));
+            assertTrue(myDAO.logInUser(email, customerIDIncorrect) == null);
         } catch (DAOException ex) {
             Logger.getLogger(TestConnexion.class.getName()).log(Level.SEVERE, null, ex);
             fail("ECHEC Test afficher commandes : échec de connexion"); 
@@ -100,7 +102,7 @@ public class TestConnexion {
         // email inexistant / customer ID quelconque -> incorrect
         try {
             myDAO.logInUser(emailIncorrect, customerID);
-            assertFalse(myDAO.logInUser(email, customerIDIncorrect));
+            assertTrue(myDAO.logInUser(email, customerIDIncorrect) == null);
         } catch (DAOException ex) {
             Logger.getLogger(TestConnexion.class.getName()).log(Level.SEVERE, null, ex);
             fail("ECHEC Test afficher commandes : échec de connexion"); 

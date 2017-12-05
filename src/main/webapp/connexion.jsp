@@ -10,6 +10,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="projetCss.css">
         <title>ACCUEIL : MINI PROJET</title>
     </head>
     <body>
@@ -18,11 +19,20 @@
         <div style="color:red">${errorMessage}</div>
         
         <!--connexion d'un client -->
-        <form action="<c:url value="connexion.jsp"/>" method="GET">
-            <label>Pseudo</label><input type="text" name="loginParam"> </input><br/>
-            <label>Mdp</label><input type="text" name="passwordParam"> </input><br/>
-            <input name="action" type="submit" value="CONNEXION"> </input>
-            
+        <form action="<c:url value="ServletControleur"/>" method="GET">
+            <table id="table_connection">
+                <tr>
+                    <td>Pseudo </td>
+                    <td><input type="text" name="loginParam"> </input></td>
+                </tr>
+                <tr>
+                    <td>Mdp</td>
+                    <td><input type="text" name="passwordParam" width="20"> </input></td>
+                </tr>
+                <tr>
+                    <td colspan="2"> <input name="action" type="submit" value="CONNECTION"> </input></td>
+                </tr>
+            </table>
         </form>
     </body>
 </html>

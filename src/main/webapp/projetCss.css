@@ -1,0 +1,74 @@
+/* 
+    Created on : 5 déc. 2017, 09:46:41
+    Author     : OncleHank
+*/
+
+html {
+    background-color: #CEF6F5;
+}
+
+body {
+    background-color: white;
+    
+    border-style:  solid none solid none;
+    border-width: 4px;
+    border-color: #FE9A2E;  
+    
+    text-align: center;
+    
+    padding: 20px 20px 20px 20px;
+    margin: auto;
+    margin-top: 5%;
+    
+    font-size: 20px;
+    
+}
+
+
+
+h1 {
+    font-size: 40px;
+    padding-bottom: 1%;
+}
+
+
+
+table {
+    margin: auto;
+    border-collapse:collapse;
+    border: black 1px solid;
+}
+
+
+table#table_connection {
+    font-size: 25px;
+    border: none;
+}
+
+th, td {
+    padding: 5px;
+    text-align:center;
+}
+
+th {
+    background-color: lightgray;
+}
+
+input[type=submit], button
+{
+   font-size: 20px;
+   width : 150px;
+}
+
+input[type=text]
+{
+   font-size: 20px;
+   width : 150px;
+}
+/*
+#tabCom{
+    margin: auto;
+    height: 300px;
+    overflow:scroll;
+}*/
+

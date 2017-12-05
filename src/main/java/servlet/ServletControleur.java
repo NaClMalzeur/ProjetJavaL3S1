@@ -30,7 +30,7 @@ import modele.DataSourceFactory;
  */
 @WebServlet(name = "ServletControleur", urlPatterns = {"/ServletControleur"})
 public class ServletControleur extends HttpServlet {
-
+    private static DAO  myDAO;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -44,31 +44,43 @@ public class ServletControleur extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            DAO  myDAO = new DAO(DataSourceFactory.getDataSource());
+            myDAO = new DAO(DataSourceFactory.getDataSource());
             HttpSession session = request.getSession(true); // démarre la session
             Gson gson = new Gson();
             String gsonData = "";
             Map<String,Integer> map = null;
+            
             String action = request.getParameter("action");
             String dateDebut = request.getParameter("dateDebut");
             String dateFin = request.getParameter("dateFin");
+            
             int idCom, quantity, productId, idCli;
             System.out.println(action);
+            
+            String pageJsp;
             switch (action) {
-		case "CONNEXION":
-                    String pageJsp = checkLogin(request);
+		case "CONNECTION":
+                    
+                    doLogIn(request);
+                    
+                    pageJsp = checkLogin(request);
+                    
                     if(pageJsp.equals("connexion.jsp")){
                         request.setAttribute("errorMessage", "Login/Password incorrect");
                     }
                     request.getRequestDispatcher(pageJsp).forward(request, response);
                     
                     break;
-                case "logout":
+               case "logout":
                     doLogout(request);
+                    
+                    pageJsp = "connexion.jsp";
+                    request.setAttribute("errorMessage", "Vous avez été déconnecté");
+                    request.getRequestDispatcher(pageJsp).forward(request, response);
                     
                     break;
                 case "pageClient":
-                    //idCli = session.getAttribute("userId");
+                    //idCli = (int) session.getAttribute("userId");
                     idCli = 2;
                     List<PurchaseOrderEntity> lst = myDAO.rqtCommandes(idCli, null, null, 0, null);
                     gsonData = gson.toJson(lst);
@@ -126,38 +138,49 @@ public class ServletControleur extends HttpServlet {
     
     
     private String checkLogin(HttpServletRequest request) throws SQLException, DAOException {
-            DAO  myDAO = new DAO(DataSourceFactory.getDataSource());
-        // vérification que l'utilisateur est connecté
+           
+            // vérification que l'utilisateur est connecté
             String userName = findUserInSession(request);
             String pageJsp;
             if (userName == null) { // L'utilisateur n'est pas connecté
                     pageJsp = "connexion.jsp";
             } else { // L'utilisateur est connecté
                 // on vérifie si admin ou client
-
-                String login = request.getParameter("loginParam");
-                String password = request.getParameter("passwordParam");
-
-                if (myDAO.logInAdmin(login, password)){
-                    HttpSession session = request.getSession(true); // démarre la session
-                    session.setAttribute("role", "admin");
-                    session.setAttribute("userName", userName);
-                    session.setAttribute("userId", password);
-                    pageJsp = "pageAdmin.jsp";
-                }else  if (myDAO.logInUser(login, password)){
-                    HttpSession session = request.getSession(true); // démarre la session
-                    session.setAttribute("role", "user");
-                    session.setAttribute("userName", userName);
-                    session.setAttribute("userId", password);
-                    pageJsp = "pageAdmin.jsp";
+                HttpSession session = request.getSession(false);
+                
+                String role = (String) session.getAttribute("role");
+                
+                if (role.equals("admin")){
+                    pageJsp = "pageAdmin.html";
+                }else  if (role.equals("user")){
+                   
+                    pageJsp = "pageClient.html";
                 }else{
                     pageJsp = "connexion.jsp";
-
                 }
             }
             return pageJsp;
 	}
 
+        private void doLogIn(HttpServletRequest request) throws DAOException {
+            String loginParam = request.getParameter("loginParam");
+            String passwordParam = request.getParameter("passwordParam");
+            String userName;
+            
+            HttpSession session = request.getSession(false);
+            
+            // vérification de connection en admin
+            if (myDAO.logInAdmin(loginParam, passwordParam)) {
+                userName = loginParam;
+                session.setAttribute("userName", userName);
+                session.setAttribute("role", "admin");
+            }
+            else if ((userName = myDAO.logInUser(loginParam, passwordParam)) != null) {
+                session.setAttribute("userName", userName);
+                session.setAttribute("role", "user");
+            } 
+        }
+    
 	private void doLogout(HttpServletRequest request) {
 		// On termine la session
 		HttpSession session = request.getSession(false);
