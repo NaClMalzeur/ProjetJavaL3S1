@@ -49,7 +49,8 @@ and open the template in the editor.
                                                 +"</tr>";
                                     }
                                     $('#tabCom').html(html)
-                                }
+                                },
+                        error: showError
                     });
                 }
                 
@@ -57,7 +58,8 @@ and open the template in the editor.
                 function suppCommande(idCom){
                     $.ajax({
                         url: "ServletControleur",
-                        data: {"action" : "suppression", "idCommande" : idCom}
+                        data: {"action" : "suppression", "idCommande" : idCom},
+                        error: showError
                     });
                     showCommandes();
                 }
@@ -78,7 +80,8 @@ and open the template in the editor.
                     console.log(quantity);
                     $.ajax({
                         url: "ServletControleur",
-                        data: {"action" : "modif", "idCommande" : idCom, "productId" : productId, "quantity" : quantity}
+                        data: {"action" : "modif", "idCommande" : idCom, "productId" : productId, "quantity" : quantity},
+                        error: showError
                     });
                     showCommandes();
                 }
@@ -87,9 +90,15 @@ and open the template in the editor.
                 function addCommande(){
                     $.ajax({
                         url: "ServletControleur",
-                        data: $("#ajoutCom").serialize()+"&action=ajout"
+                        data: $("#ajoutCom").serialize()+"&action=ajout",
+                        error: showError
                     });
                     showCommandes();
+                }
+                
+                // Fonction qui traite les erreurs de la requête
+                function showError(xhr, status, message) {
+                    alert(JSON.parse(xhr.responseText).message);
                 }
             </script>
     </head>

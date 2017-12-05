@@ -27,7 +27,8 @@ and open the template in the editor.
                         success: // La fonction qui traite les résultats
                                 function (result) {
                                     console.log(result);
-                                }
+                                },
+                        error: showError
                     });
                     
                     $.ajax({
@@ -37,7 +38,8 @@ and open the template in the editor.
                         success: // La fonction qui traite les résultats
                                 function (result) {
                                     console.log(result);
-                                }
+                                },
+                        error: showError
                     });
                     
                     $.ajax({
@@ -47,8 +49,15 @@ and open the template in the editor.
                         success: // La fonction qui traite les résultats
                                 function (result) {
                                     console.log(result);
-                                }
+                                },
+                        error: showError
                     });
+                }
+                
+                
+                // Fonction qui traite les erreurs de la requête
+                function showError(xhr, status, message) {
+                    alert(JSON.parse(xhr.responseText).message);
                 }
             </script>
     </head>
