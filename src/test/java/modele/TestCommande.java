@@ -208,10 +208,8 @@ public class TestCommande {
             ProductEntity produit = myDAO.getProduit(productID);
             
             commandeModifiee = commandes.get(0);
-            commandeModifiee.setProductId(productID);
-            commandeModifiee.setQuantity(qte);
             
-            myDAO.modificationCommande(commandeModifiee);
+            myDAO.modificationCommande(productID, qte, commandeModifiee.getOrderNum());
             
             commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
             
@@ -247,10 +245,8 @@ public class TestCommande {
            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
             
             commandeModifiee = commandes.get(0);
-            commandeModifiee.setProductId(productID);
-            commandeModifiee.setQuantity(qte);
             
-            myDAO.modificationCommande(commandeModifiee);
+            myDAO.modificationCommande(productID, qte, commandeModifiee.getOrderNum());
             
             fail("Modification commande : échec sur quantité négative !");
             
@@ -287,11 +283,9 @@ public class TestCommande {
             commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
 
             commandeModifiee = commandes.get(0);
-            commandeModifiee.setProductId(productID);
-            commandeModifiee.setQuantity(qte);
             
             
-            myDAO.modificationCommande(commandeModifiee);
+            myDAO.modificationCommande(productID, qte, commandeModifiee.getOrderNum());
             fail("Modification commande : échec sur  produit inéxistant!");
             
         } catch (DAOException ex) {
@@ -314,7 +308,7 @@ public class TestCommande {
             int nbCommandesAvant = commandes.size();
             
             // suppression d'une commande
-            myDAO.suppressionCommande(commandes.get(0));
+            myDAO.suppressionCommande(commandes.get(0).getOrderNum());
              
             // nombre de commandes après suppression
             commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);

@@ -10,7 +10,6 @@ import entitys.PurchaseOrderEntity;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -53,6 +52,7 @@ public class ServletControleur extends HttpServlet {
             String action = request.getParameter("action");
             String dateDebut = request.getParameter("dateDebut");
             String dateFin = request.getParameter("dateFin");
+            int idCom, quantity, productId, idCli;
             System.out.println(action);
             switch (action) {
 		case "CONNEXION":
@@ -68,27 +68,38 @@ public class ServletControleur extends HttpServlet {
                     
                     break;
                 case "pageClient":
-                    //int id = session.getAttribute("userId");
-                    int id = 1;
-                    List<PurchaseOrderEntity> lst = myDAO.rqtCommandes(id, null, null, 0, null);
+                    //idCli = session.getAttribute("userId");
+                    idCli = 2;
+                    List<PurchaseOrderEntity> lst = myDAO.rqtCommandes(idCli, null, null, 0, null);
                     gsonData = gson.toJson(lst);
                     out.println(gsonData);  
-                    System.out.println(lst.size());
+                    
+                    break;
+                case "modif":
+                    idCom = Integer.parseInt(request.getParameter("idCommande"));
+                    quantity = Integer.parseInt(request.getParameter("quantity"));
+                    productId = Integer.parseInt(request.getParameter("productId"));
+                    myDAO.modificationCommande(productId, quantity, idCom);
                     
                     break;
                 case "Ajout":
-                    int idCom = 900;
-                    int idCli = 1;
+                    idCom = -1;
+                    idCli = 2;
                     System.out.println("TEST1");
-                    int productId = Integer.parseInt(request.getParameter("productId"));
+                    productId = Integer.parseInt(request.getParameter("productId"));
                     System.out.println("TEST2");
-                    int quantity = Integer.parseInt(request.getParameter("quantity"));
+                    quantity = Integer.parseInt(request.getParameter("quantity"));
                     float shippingCost = Float.parseFloat(request.getParameter("shippingCost"));
                     String salesDate = request.getParameter("salesDate");
                     String shippingDate = request.getParameter("shippingDate");
                     String freightCompany = request.getParameter("freightCompany");
                     PurchaseOrderEntity com = new PurchaseOrderEntity(idCom, idCli, productId, quantity, shippingCost, salesDate, shippingDate, freightCompany);
                     myDAO.ajoutCommande(com);
+                    
+                    break;
+                case "suppression":
+                    idCom = Integer.parseInt(request.getParameter("idCommande"));
+                    myDAO.suppressionCommande(idCom);
                     
                     break;
                 case "pageAdminItem":

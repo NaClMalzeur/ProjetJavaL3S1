@@ -17,7 +17,6 @@ and open the template in the editor.
                         showCommandes();
                     }
                 );
-                var test;
                 function showCommandes(){
                     $.ajax({
                         url: "ServletControleur",
@@ -33,20 +32,20 @@ and open the template in the editor.
                                                     +"<th>Quantitée</th>"
                                                     +"<th>Date de vente</th>"
                                                     +"<th>Prix de livraison</th>"
-                                                    +"<th>Date d'envoie</th>"
+                                                    +"<th>Date d'envoi</th>"
                                                     +"<th colspan='2'>Action</th>"
                                                 +"</tr>";
                                         console.log(result.length)
                                     for(i = 0; i<result.length; i++){
-                                        html += "<tr id='com"+result[i].orderNum+"'>"
+                                        html += "<tr>"
                                                     +"<td>"+ result[i].orderNum +"</td>"
-                                                    +"<td>"+ result[i].productId +"</td>"
-                                                    +"<td>"+ result[i].quantity +"</td>"
+                                                    +"<td id='prodId"+result[i].orderNum+"'>"+ result[i].productId +"</td>"
+                                                    +"<td id='qtt"+result[i].orderNum+"'>"+ result[i].quantity +"</td>"
                                                     +"<td>"+ result[i].salesDate +"</td>"
                                                     +"<td>"+ result[i].shippingCost +"</td>"
                                                     +"<td>"+ result[i].shippingDate +"</td>"
-                                                    +"<td> <button type='button' onclick='modifCommande();'>Modifier</button> </td>"
-                                                    +"<td> <button type='button' onclick='suppCommande();'>Supprimer</button> </td>"
+                                                    +"<td> <button type='button' onclick='modifCommande("+result[i].orderNum+");'>Modifier</button> </td>"
+                                                    +"<td> <button type='button' onclick='suppCommande("+result[i].orderNum+");'>Supprimer</button> </td>"
                                                 +"</tr>";
                                     }
                                     $('#tabCom').html(html)
@@ -55,34 +54,50 @@ and open the template in the editor.
                 }
                 
                 
-                function suppCommande(){
-                    console.log("supp");
+                function suppCommande(idCom){
+                    $.ajax({
+                        url: "ServletControleur",
+                        data: {"action" : "suppression", "idCommande" : idCom}
+                    });
+                    showCommandes();
                 }
                 
                 
-                function modifCommande(){
-                    console.log("modif");
+                function modifCommande(idCom){
+                    var productId;
+                    if($('#productId')[0].value==="")
+                        productId = $('#prodId'+idCom)[0].textContent;
+                    else
+                        productId = $('#productId')[0].value;
+                    var quantity;
+                    if($('#quantity')[0].value==="")
+                        quantity = $('#qtt'+idCom)[0].textContent;
+                    else
+                        quantity = $('#quantity')[0].value;
+                    console.log(productId);
+                    console.log(quantity);
+                    $.ajax({
+                        url: "ServletControleur",
+                        data: {"action" : "modif", "idCommande" : idCom, "productId" : productId, "quantity" : quantity}
+                    });
+                    showCommandes();
                 }
                 
                 
                 function addCommande(){
+                    console.log($("#ajoutCom").serialize());
                     $.ajax({
                         url: "ServletControleur",
-                        dataType: "json",
-                        data: $("#ajoutCom").serialize(),
-                        //error: showError,
-                        success: // La fonction qui traite les résultats
-                                function (result) {
-                                    showCommandes
-                                }
+                        data: $("#ajoutCom").serialize()
                     });
+                    showCommandes();
                 }
             </script>
     </head>
     <body>
         <form id='ajoutCom' onsubmit='addCommande();'>
-            <label>Product ID   </label><input type="text" name="productId"/><br/>
-            <label>Quantity   </label><input type="number" step='1' name="quantity"/><br/>
+            <label>Product ID   </label><input type="text" id='productId' name="productId"/><br/>
+            <label>Quantity   </label><input type="number" step='1' id='quantity' name="quantity"/><br/>
             <label>Prix de livraison   </label><input type="number" step='0.01' name="shippingCost"/>€<br/>
             <label>Date de vente   </label><input type="date" name="salesDate"/><br/>
             <label>Date d'envoi   </label><input type="date" name="shippingDate"/><br/>

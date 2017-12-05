@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -94,14 +95,12 @@ public class DAO {
      * On y affiche le produit commandé, la quantité, le prix unitaire (A VOIR),
      * le prix total, la date de vente / livraison, frais de livraison, 
      * 
-     * @param customerID l'identifiant du client dont on affiche les commandes 
-     * @param dateDebut date de début des commandes à afficher 
-     * @param dateFin date de fin des commandes à afficher
+     * @param stmt
      * @return la liste des commandes de ce client
      * @throws DAOException si une erreur survient lors de l'obtention des 
      *  commandes ou si le client n'existe pas
      */
-    public List<PurchaseOrderEntity> afficherCommandes(/*int customerID, String dateDebut, String dateFin*/PreparedStatement stmt)
+    public List<PurchaseOrderEntity> afficherCommandes(PreparedStatement stmt)
             throws DAOException {
        
         // TODO : A VOIR POUR METTRE D'AUTRES ATT QUE CEUX DANS PURCHASE_ORDER
@@ -157,7 +156,6 @@ public class DAO {
      */
     public List<PurchaseOrderEntity> rqtCommandes(int customerId, String dateDebut, String dateFin, int productId, String zipCode)
         throws DAOException {
-        System.out.println("id = " + customerId);
         String query = "SELECT * FROM purchase_order po ";
         String comma = " WHERE ";
         
@@ -182,7 +180,6 @@ public class DAO {
         }
         if (zipCode!=null){
             query += comma + " cus.ZIP = ?";
-            comma = " AND ";
         }
         query += " ORDER BY po.ORDER_NUM";
         try (Connection con = myDataSource.getConnection();
@@ -367,11 +364,31 @@ public class DAO {
      *  - compagnie de livraison (FREIGHT_COMPANY)
      * 
      * 
-     * @param produit le produit de la commande à ajouter dans la BD 
+     * @param commande
      * @throws modele.DAOException si l'ajout de ce produit échoue 
      */
     public void ajoutCommande(PurchaseOrderEntity commande) throws DAOException {
         System.out.println("Ajout de la commande");
+        
+        String query = "SELECT MAX(order_num)+1 as id FROM PURCHASE_ORDER ";
+        int newID = -1;
+        
+        try(Connection connection = myDataSource.getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(query)){
+            
+            pstmt.executeQuery();
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    newID = rs.getInt("id");
+                }
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("newID = " + newID);
+        commande.setOrderNum(newID);
         
         String sql = "INSERT INTO PURCHASE_ORDER "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -416,10 +433,10 @@ public class DAO {
      
     /**
      * Suppression de cette commande
-     * @param commande 
+     * @param order_num
      * @throws DAOException si la suppression de ce produit échoue 
      */
-    public void suppressionCommande(PurchaseOrderEntity commande/*int order_num*/) throws DAOException {
+    public void suppressionCommande(int order_num) throws DAOException {
         
         String sql = "DELETE FROM PURCHASE_ORDER " 
                     + "WHERE ORDER_NUM = ?";
@@ -427,23 +444,25 @@ public class DAO {
         try (Connection connection = myDataSource.getConnection();
             PreparedStatement pstmt = connection.prepareStatement(sql)) {
             
-            pstmt.setInt(1, commande.getOrderNum());
+            pstmt.setInt(1, order_num);
             pstmt.executeUpdate();
             
-            modificationStock(commande.getProductId(), commande.getQuantity());
+            //modificationStock(commande.getProductId(), commande.getQuantity());
             
-        } catch(SQLException | DAOException e) {
+        } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
             throw new DAOException("Suppression commande : " + e.getMessage());
         }
     }
     
         /**
-     * Modification de la commande avec le ORDER_NUM de cette commande
-     * @param commande la commande à modifier 
+     * Modification de la commande avec le ORDER_NUM de cette commande 
+     * @param idProd
+     * @param quantity
+     * @param idCom
      * @throws DAOException si la modification de ce produit échoue
      */
-    public void modificationCommande(PurchaseOrderEntity commande) throws DAOException {
+    public void modificationCommande(int idProd, int quantity, int idCom) throws DAOException {
         String sql = "UPDATE PURCHASE_ORDER " 
                     + "SET PRODUCT_ID = ?, QUANTITY = ? "
                     + "WHERE ORDER_NUM = ?";
@@ -451,9 +470,9 @@ public class DAO {
         try (Connection connection = myDataSource.getConnection();
             PreparedStatement pstmt = connection.prepareStatement(sql)) {
             
-            pstmt.setInt(1, commande.getProductId());
-            pstmt.setInt(2, commande.getQuantity());
-            pstmt.setInt(3, commande.getOrderNum());
+            pstmt.setInt(1, idProd);
+            pstmt.setInt(2, quantity);
+            pstmt.setInt(3, idCom);
             pstmt.executeUpdate();
             
         } catch(SQLException e) {
@@ -489,11 +508,11 @@ public class DAO {
     }
 
     public Map<String,Integer> chiffreAffaire(boolean byItem, boolean byZip, boolean byCustomer, String dateDebut, String dateFin){
-        Map<String,Integer> map = null;
-        String query = "";
+        Map<String,Integer> map = new HashMap<String,Integer>();
+        String query = "SELECT SUM(p.purchase_cost*po.quantity), ";
         String comma = " WHERE ";
         if(byItem){
-            query = "SELECT SUM(p.purchase_cost*po.quantity), p.product_id FROM purchase_order po JOIN product p ON p.product_id=po.product_id ";
+            query += " p.product_id FROM purchase_order po JOIN product p ON p.product_id=po.product_id ";
             if(dateDebut != null){
                 query += comma + " po.shipping_date > ? ";
                 comma = " AND ";
@@ -501,9 +520,9 @@ public class DAO {
             if(dateFin != null){
                 query += comma + " po.shipping_date < ? ";
             }
-            query = " GROUP BY p.product_id";
+            query += " GROUP BY p.product_id";
         }else if(byZip){
-            query = "SELECT SUM(p.purchase_cost*po.quantity), c.zip FROM purchase_order po JOIN product p ON p.product_id=po.product_id JOIN customer c ON c.customer_id = po.customer_id ";
+            query += " c.zip FROM purchase_order po JOIN product p ON p.product_id=po.product_id JOIN customer c ON c.customer_id = po.customer_id ";
             if(dateDebut != null){
                 query += comma + " po.shipping_date > ? ";
                 comma = " AND ";
@@ -513,7 +532,7 @@ public class DAO {
             }
             query += " GROUP BY c.zip";
         }else if(byCustomer){
-            query = "SELECT SUM(p.purchase_cost*po.quantity), po.customer_id FROM purchase_order po JOIN product p ON p.product_id=po.product_id";
+            query += " po.customer_id FROM purchase_order po JOIN product p ON p.product_id=po.product_id";
             if(dateDebut != null){
                 query += comma + " po.shipping_date > ? ";
                 comma = " AND ";
@@ -523,6 +542,7 @@ public class DAO {
             }
             query += " GROUP BY po.customer_id";
         }
+        System.out.println(query);
         try (Connection connection = myDataSource.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query)) {
             if(dateDebut != null){
@@ -539,6 +559,7 @@ public class DAO {
                     map.put(id,ca);
                 }
             }
+        System.out.println(map.size());
         } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         }
