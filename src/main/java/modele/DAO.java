@@ -522,45 +522,45 @@ public class DAO {
         String query = "SELECT SUM(p.purchase_cost*po.quantity), ";
         String comma = " WHERE ";
         if(byItem){
-            query += " p.product_id FROM purchase_order po JOIN product p ON p.product_id=po.product_id ";
-            if(dateDebut != null){
+            query += " p.description FROM purchase_order po JOIN product p ON p.product_id=po.product_id ";
+            if(dateDebut != null && !dateDebut.equals("")){
                 query += comma + " po.shipping_date > ? ";
                 comma = " AND ";
             }
-            if(dateFin != null){
+            if(dateFin != null && !dateFin.equals("")){
                 query += comma + " po.shipping_date < ? ";
             }
-            query += " GROUP BY p.product_id";
+            query += " GROUP BY p.description";
         }else if(byZip){
             query += " c.zip FROM purchase_order po JOIN product p ON p.product_id=po.product_id JOIN customer c ON c.customer_id = po.customer_id ";
-            if(dateDebut != null){
+            if(dateDebut != null && !dateDebut.equals("")){
                 query += comma + " po.shipping_date > ? ";
                 comma = " AND ";
             }
-            if(dateFin != null){
+            if(dateFin != null && !dateFin.equals("")){
                 query += comma + " po.shipping_date < ? ";
             }
             query += " GROUP BY c.zip";
         }else if(byCustomer){
-            query += " po.customer_id FROM purchase_order po JOIN product p ON p.product_id=po.product_id";
-            if(dateDebut != null){
+            query += " c.name FROM purchase_order po JOIN product p ON p.product_id=po.product_id JOIN customer c ON c.customer_id = po.customer_id ";
+            if(dateDebut != null&& !dateDebut.equals("")){
                 query += comma + " po.shipping_date > ? ";
                 comma = " AND ";
             }
-            if(dateFin != null){
+            if(dateFin != null && !dateFin.equals("")){
                 query += comma + " po.shipping_date < ? ";
             }
-            query += " GROUP BY po.customer_id";
+            query += " GROUP BY c.name";
         }
         System.out.println(query);
         try (Connection connection = myDataSource.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query)) {
-            if(dateDebut != null){
-                stmt.setString(1, dateDebut);
-                if(dateFin != null)
-                    stmt.setString(2, dateFin);
-            }else if(dateFin != null){
-                stmt.setString(1, dateFin);
+            if(dateDebut != null && !dateDebut.equals("")){
+                stmt.setDate(1, getDate(dateDebut));
+                if(dateFin != null && !dateFin.equals(""))
+                    stmt.setDate(2, getDate(dateFin));
+            }else if(dateFin != null && !dateFin.equals("")){
+                stmt.setDate(1, getDate(dateFin));
             }
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -571,7 +571,7 @@ public class DAO {
             }
             if(byCustomer)
                 System.out.println(map.values());
-        } catch (SQLException ex) {
+        } catch (SQLException | ParseException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return map;

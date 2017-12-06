@@ -53,7 +53,7 @@ and open the template in the editor.
                         success: // La fonction qui traite les résultats
                                 function (result) {
                                     //console.log(result);
-                                    drawChart(result, "itemID");
+                                    drawChart(result, "Article");
                                 }
                     });
                     
@@ -75,7 +75,7 @@ and open the template in the editor.
                         async: false,
                         success: // La fonction qui traite les résultats
                                 function (result) {
-                                    drawChart(result, "IdCustomer");
+                                    drawChart(result, "Client");
                                 }
                     });
                 }
@@ -95,9 +95,9 @@ and open the template in the editor.
             <input type="date" id="dateDebut" name="dateDebut" onchange="showCA();"/>
             <input type="date" id="dateFin" name="dateFin" onchange="showCA();"/>
         </form>
-        <div id="piechartitemID" style="width: 900px; height: 500px;"></div>
+        <div id="piechartArticle" style="width: 900px; height: 500px;"></div>
         <div id="piechartZipCode" style="width: 900px; height: 500px;"></div>
-        <div id="piechartIdCustomer" style="width: 900px; height: 500px;"></div>
+        <div id="piechartClient" style="width: 900px; height: 500px;"></div>
 
     </body>
 </html>
