@@ -19,6 +19,9 @@ and open the template in the editor.
 
                     // On montre la liste des codes
                     showCommandes();
+                    
+                    // on récupère les commandes dans une liste déroulante pour les proposer
+                    setProduitsInDropDown();
                 }
             );
             function showUser() {
@@ -70,6 +73,27 @@ and open the template in the editor.
                                             +"</tr>";
                                 }
                                 $('#tabCom').html(html)
+                            }
+                });
+            }
+            
+            function setProduitsInDropDown() {
+               $.ajax({
+                    url: "ServletControleur",
+                    dataType: "json",
+                    data: {"action": "getAllProduits"},
+                    //error: showError,
+                    success: // La fonction qui traite les résultats
+                            function (result) {
+                                console.log(result);
+
+                                var html = '<select name="productId">';
+                                for(i = 0; i<result.length; i++)
+                                    html += '<option value="' + result[i].productId + '">' + result[i].description+ "</option>";
+                                html += "</select>";
+                                    console.log(result.length);
+                                
+                                $('#allCommande').html(html);
                             }
                 });
             }
@@ -125,7 +149,7 @@ and open the template in the editor.
     <body>
         <form>
             <button type='submit' name="action"  value="logout">
-                <img src="btn_logout.png" alt="Bouton de déconnection" height="50" width="50">
+                <img src="btn_logout.png" alt="Bouton de déconnexion" height="50" width="50">
             </button>
         </form> 
         
@@ -144,7 +168,7 @@ and open the template in the editor.
                     <th>Action</th>
                 </tr>
                 <tr>
-                    <td><input type="text" name="productId"/></td>
+                    <td id="allCommande"></td>
                     <td><input type="number" step='1' name="quantity"/></td>
                     <td><input type="date" name="shippingDate"/></td>
                     <td><input type="text" name="freightCompany"/></td>

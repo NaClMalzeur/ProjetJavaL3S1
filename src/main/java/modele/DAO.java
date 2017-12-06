@@ -390,8 +390,12 @@ public class DAO {
         System.out.println("newID = " + newID);
         commande.setOrderNum(newID);
         
-        String sql = "INSERT INTO PURCHASE_ORDER "
+        String sql;
+        sql = "INSERT INTO PURCHASE_ORDER "
                 + "VALUES (?, ?, ?, ?, ?, CURRENT DATE, ?, ?)";
+        if(commande.getSalesDate()!=null)
+            sql = "INSERT INTO PURCHASE_ORDER "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection connection = myDataSource.getConnection();
             PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -401,9 +405,15 @@ public class DAO {
             pstmt.setInt(3, commande.getProductId());
             pstmt.setInt(4, commande.getQuantity());
             pstmt.setFloat(5, commande.getShippingCost());
-            //pstmt.setDate(6, getDate(commande.getSalesDate()));
-            pstmt.setDate(6, getDate(commande.getShippingDate()));
-            pstmt.setString(7, commande.getFreightCompany());
+            if(commande.getSalesDate()!=null){
+                pstmt.setDate(6, getDate(commande.getSalesDate()));
+                pstmt.setDate(7, getDate(commande.getShippingDate()));
+                pstmt.setString(8, commande.getFreightCompany());
+            }else{
+                pstmt.setDate(6, getDate(commande.getShippingDate()));
+                pstmt.setString(7, commande.getFreightCompany());
+            }
+            
 
             pstmt.executeUpdate();
             

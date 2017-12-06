@@ -6,6 +6,7 @@
 package servlet;
 
 import com.google.gson.Gson;
+import entitys.ProductEntity;
 import entitys.PurchaseOrderEntity;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -59,6 +60,8 @@ public class ServletControleur extends HttpServlet {
             int idCom, quantity, productId, idCli;
             System.out.println(action);
             
+            HttpSession session;
+            
             //String pageJsp;
             switch (action) {
 		case "CONNECTION":
@@ -82,8 +85,10 @@ public class ServletControleur extends HttpServlet {
                     
                     break;
                 case "pageClient":
-                    //idCli = (int) session.getAttribute("userId");
-                    idCli = 2;
+                    session = request.getSession(false);
+                    
+                    idCli = Integer.parseInt((String)session.getAttribute("userId"));
+                    
                     List<PurchaseOrderEntity> lst = myDAO.rqtCommandes(idCli, null, null, 0, null);
                     gsonData = gson.toJson(lst);
                     out.println(gsonData);  
@@ -97,8 +102,9 @@ public class ServletControleur extends HttpServlet {
                     
                     break;
                 case "ajout":
+                    session = request.getSession(false);
                     idCom = -1;
-                    idCli = 2;
+                    idCli = Integer.parseInt((String)session.getAttribute("userId"));
                     productId = Integer.parseInt(request.getParameter("productId"));
                     quantity = Integer.parseInt(request.getParameter("quantity"));
                     float shippingCost = 50;
@@ -137,6 +143,14 @@ public class ServletControleur extends HttpServlet {
                     String userName = findUserInSession(request);
                     gsonData = gson.toJson(userName);
                     out.println(gsonData);
+                    
+                    break;
+                case "getAllProduits":
+                    List<ProductEntity> produtct = myDAO.allProducts();
+                    gsonData = gson.toJson(produtct);
+                    out.println(gsonData);
+                    
+                    break;
             }
             
         } catch (SQLException | DAOException ex) {
@@ -158,10 +172,10 @@ public class ServletControleur extends HttpServlet {
                 
                 String role = (String) session.getAttribute("role");
                 
-                if (role.equals("admin")){
-                    pageJsp = "protected/pageAdmin.html";
+                 if (role.equals("admin")){
+                    pageJsp = "protectedAdmin/pageAdmin.html";
                 }else  if (role.equals("user")){
-                    pageJsp = "protected/pageClient.html";
+                    pageJsp = "protectedUser/pageClient.html";
                 }else{
                     pageJsp = "connexion.jsp";
                 }
@@ -187,6 +201,7 @@ public class ServletControleur extends HttpServlet {
             session = request.getSession(true);
             session.setAttribute("userName", userName);
             session.setAttribute("role", "user");
+            session.setAttribute("userId", passwordParam);
         } 
     }
 
