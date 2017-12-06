@@ -101,11 +101,10 @@ public class ServletControleur extends HttpServlet {
                     idCli = 2;
                     productId = Integer.parseInt(request.getParameter("productId"));
                     quantity = Integer.parseInt(request.getParameter("quantity"));
-                    float shippingCost = Float.parseFloat(request.getParameter("shippingCost"));
-                    String salesDate = request.getParameter("salesDate");
+                    float shippingCost = 50;
                     String shippingDate = request.getParameter("shippingDate");
                     String freightCompany = request.getParameter("freightCompany");
-                    PurchaseOrderEntity com = new PurchaseOrderEntity(idCom, idCli, productId, quantity, shippingCost, salesDate, shippingDate, freightCompany);
+                    PurchaseOrderEntity com = new PurchaseOrderEntity(idCom, idCli, productId, quantity, shippingCost, null, shippingDate, freightCompany);
                     myDAO.ajoutCommande(com);
                     
                     break;
