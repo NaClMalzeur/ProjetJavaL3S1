@@ -13,12 +13,29 @@ and open the template in the editor.
             <script>
                 $(document).ready(// Exécuté à la fin du chargement de la page
                     function () {
+                        showAdmin();
                         // On montre la liste des codes
                         showCA();
                     }
                 );
         
-                
+                function showAdmin() {
+               $.ajax({
+                    url: "ServletControleur",
+                    dataType: "json",
+                    data: {"action": "getUserName"},
+                    //error: showError,
+                    success: // La fonction qui traite les résultats
+                            function (result) {
+                                console.log(result);
+                                
+                                var html = "<h1>Page administrateur : " + result + "</h1>";
+                                    console.log(result.length);
+                                
+                                $('#adminConnecte').html(html);
+                            }
+                });
+            }
                 function showCA(){
                     $.ajax({
                         url: "ServletControleur",
@@ -54,13 +71,16 @@ and open the template in the editor.
     </head>
     <body>
         
-        <form>
+        <form action="ServletControleur">
             <button type='submit' name="action"  value="logout">
                 <img src="btn_logout.png" alt="Bouton de déconnection" height="50" width="50">
             </button>
         </form> 
         
-        <H1>PAGE ADMIN</H1>
+        
+        <div id="adminConnecte">
+        </div>
+
         
         <div>TODO write content</div>
     </body>

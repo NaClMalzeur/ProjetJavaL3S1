@@ -44,8 +44,10 @@ public class ServletControleur extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+            
             myDAO = new DAO(DataSourceFactory.getDataSource());
-            HttpSession session = request.getSession(true); // démarre la session
+            String pageJsp;
+            
             Gson gson = new Gson();
             String gsonData = "";
             Map<String,Integer> map = null;
@@ -57,7 +59,7 @@ public class ServletControleur extends HttpServlet {
             int idCom, quantity, productId, idCli;
             System.out.println(action);
             
-            String pageJsp;
+            //String pageJsp;
             switch (action) {
 		case "CONNECTION":
                     
@@ -130,7 +132,13 @@ public class ServletControleur extends HttpServlet {
                     out.println(gsonData);
                     
                     break;
+                    
+                case "getUserName":
+                    String userName = findUserInSession(request);
+                    gsonData = gson.toJson(userName);
+                    out.println(gsonData);
             }
+            
         } catch (SQLException | DAOException ex) {
             Logger.getLogger(ServletControleur.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -151,10 +159,9 @@ public class ServletControleur extends HttpServlet {
                 String role = (String) session.getAttribute("role");
                 
                 if (role.equals("admin")){
-                    pageJsp = "pageAdmin.html";
+                    pageJsp = "protected/pageAdmin.html";
                 }else  if (role.equals("user")){
-                   
-                    pageJsp = "pageClient.html";
+                    pageJsp = "protected/pageClient.html";
                 }else{
                     pageJsp = "connexion.jsp";
                 }
@@ -162,32 +169,34 @@ public class ServletControleur extends HttpServlet {
             return pageJsp;
 	}
 
-        private void doLogIn(HttpServletRequest request) throws DAOException {
-            String loginParam = request.getParameter("loginParam");
-            String passwordParam = request.getParameter("passwordParam");
-            String userName;
-            
-            HttpSession session = request.getSession(false);
-            
-            // vérification de connection en admin
-            if (myDAO.logInAdmin(loginParam, passwordParam)) {
-                userName = loginParam;
-                session.setAttribute("userName", userName);
-                session.setAttribute("role", "admin");
-            }
-            else if ((userName = myDAO.logInUser(loginParam, passwordParam)) != null) {
-                session.setAttribute("userName", userName);
-                session.setAttribute("role", "user");
-            } 
+    private void doLogIn(HttpServletRequest request) throws DAOException {
+        String loginParam = request.getParameter("loginParam");
+        String passwordParam = request.getParameter("passwordParam");
+        String userName;
+
+        HttpSession session;
+
+        // vérification de connection en admin
+        if (myDAO.logInAdmin(loginParam, passwordParam)) {
+            userName = loginParam;
+            session = request.getSession(true);
+            session.setAttribute("userName", userName);
+            session.setAttribute("role", "admin");
         }
-    
-	private void doLogout(HttpServletRequest request) {
-		// On termine la session
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			session.invalidate();
-		}
-	}
+        else if ((userName = myDAO.logInUser(loginParam, passwordParam)) != null) {
+            session = request.getSession(true);
+            session.setAttribute("userName", userName);
+            session.setAttribute("role", "user");
+        } 
+    }
+
+    private void doLogout(HttpServletRequest request) {
+            // On termine la session
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                    session.invalidate();
+            }
+    }
         
     private String findUserInSession(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

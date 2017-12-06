@@ -5,4 +5,19 @@
             30
         </session-timeout>
     </session-config>
+    
+    <filter>
+        <filter-name>ProtectedPagesFilter</filter-name>
+        <filter-class>filter.ProtectedPagesFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ProtectedPagesFilter</filter-name>
+        <url-pattern>/protected/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+    
+    
+     <welcome-file-list>
+        <welcome-file>connexion.jsp</welcome-file>
+    </welcome-file-list>
 </web-app>

@@ -4,6 +4,8 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -27,13 +29,26 @@ public class ProtectedPagesFilter implements Filter {
 		throws IOException, ServletException {
 		try {
 			HttpSession session = ((HttpServletRequest) request).getSession(false);
-			if (session != null && session.getAttribute("role").equals("user")) {// connecté, on traite la requête			
+                        
+                        HttpServletRequest httpServletRequest = ((HttpServletRequest) request);
+                        String requestURI = httpServletRequest.getRequestURI();
+                        
+			/*if (session != null && 
+                                ((session.getAttribute("role").equals("user") 
+                                && path.equals("protected/pageClient.html"))
+                                || (session.getAttribute("role").equals("admin") 
+                                && path.equals("protected/pageAdmin.html")))) {// connecté, on traite la requête			
 				chain.doFilter(request, response);
-			} else {
-				// Pas connecté, on va vers la page de login (racine)
-				((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request).getContextPath() + "connexion.jsp/");
+			}*/
+                        if (session != null 
+                                && (session.getAttribute("role").equals("user") && requestURI.equals(((HttpServletRequest) request).getContextPath() + "pageClient.html"))
+                                || (session.getAttribute("role").equals("admin") && requestURI.equals(((HttpServletRequest) request).getContextPath() + "pageAdmin.html"))) {
+                          chain.doFilter(request, response); 
+                        } else {
+                            // Pas connecté, on va vers la page de login (racine)
+                            ((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request).getContextPath() + "/connexion.jsp");
 			}
-		} catch (IOException | ServletException t) {
+		} catch (IOException t) {
 		}
 
 	}
