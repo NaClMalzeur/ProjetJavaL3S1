@@ -546,11 +546,11 @@ public class DAO {
         try (Connection connection = myDataSource.getConnection();
             PreparedStatement stmt = connection.prepareStatement(query)) {
             if(dateDebut != null){
-                stmt.setString(0, dateDebut);
+                stmt.setString(1, dateDebut);
                 if(dateFin != null)
-                    stmt.setString(1, dateFin);
+                    stmt.setString(2, dateFin);
             }else if(dateFin != null){
-                stmt.setString(0, dateFin);
+                stmt.setString(1, dateFin);
             }
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {

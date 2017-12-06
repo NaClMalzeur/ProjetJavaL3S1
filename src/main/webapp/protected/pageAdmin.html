@@ -9,61 +9,73 @@ and open the template in the editor.
         <title>PAGE ADMIN : MINI PROJET</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
             <script>
+               google.charts.load('current', {'packages':['corechart']}); 
+               google.load("visualization", "1", {packages:["corechart"]});
+
                 $(document).ready(// Exécuté à la fin du chargement de la page
                     function () {
-                        showAdmin();
-                        // On montre la liste des codes
                         showCA();
                     }
                 );
+                
         
-                function showAdmin() {
-               $.ajax({
-                    url: "ServletControleur",
-                    dataType: "json",
-                    data: {"action": "getUserName"},
-                    //error: showError,
-                    success: // La fonction qui traite les résultats
-                            function (result) {
-                                console.log(result);
-                                
-                                var html = "<h1>Page administrateur : " + result + "</h1>";
-                                    console.log(result.length);
-                                
-                                $('#adminConnecte').html(html);
-                            }
-                });
-            }
+                function drawChart(objectData, cle) {
+                    var tabData = new google.visualization.DataTable();
+                            tabData.addColumn('string', cle);
+                            tabData.addColumn('number', "chiffre d'affaire");
+                    for(key in objectData){
+                        tabData.addRow([key+"",objectData[key]]);
+                    }
+                        //var data = google.visualization.arrayToDataTable(objectData.toString());
+                    var options = {
+                        title: "Chiffre d'affaire par " + cle
+                    };
+
+                    var chart = new google.visualization.PieChart(document.getElementById('piechart'+cle));
+
+                    chart.draw(tabData, options);
+
+                }
+
+                
                 function showCA(){
+                    var dateDebut = $('#dateDebut').val();
+                    var dateFin = $('#dateFin').val();
                     $.ajax({
                         url: "ServletControleur",
                         dataType: "json",
-                        data: {"action": "pageAdminItem"},
+                        data: {"action" : "pageAdminItem", "dateDebut" : dateDebut, "dateFin" : dateFin},
+                        async: false,
                         success: // La fonction qui traite les résultats
                                 function (result) {
-                                    console.log(result);
+                                    //console.log(result);
+                                    drawChart(result, "itemID");
                                 }
                     });
                     
                     $.ajax({
                         url: "ServletControleur",
                         dataType: "json",
-                        data: {"action": "pageAdminZip"},
+                        data: {"action" : "pageAdminZip", "dateDebut" : dateDebut, "dateFin" : dateFin},
+                        async: false,
                         success: // La fonction qui traite les résultats
                                 function (result) {
-                                    console.log(result);
+                                    drawChart(result, "ZipCode");
                                 }
                     });
                     
                     $.ajax({
                         url: "ServletControleur",
                         dataType: "json",
-                        data: {"action": "pageAdminIdCustom"},
+                        data: {"action" : "pageAdminIdCustom", "dateDebut" : dateDebut, "dateFin" : dateFin},
+                        async: false,
                         success: // La fonction qui traite les résultats
                                 function (result) {
-                                    console.log(result);
+                                    drawChart(result, "IdCustomer");
                                 }
                     });
                 }
@@ -71,17 +83,21 @@ and open the template in the editor.
     </head>
     <body>
         
-        <form action="ServletControleur">
+        <form>
             <button type='submit' name="action"  value="logout">
                 <img src="btn_logout.png" alt="Bouton de déconnection" height="50" width="50">
             </button>
         </form> 
         
+        <H1>PAGE ADMIN</H1>
         
-        <div id="adminConnecte">
-        </div>
+        <form>
+            <input type="date" id="dateDebut" name="dateDebut" onchange="showCA();"/>
+            <input type="date" id="dateFin" name="dateFin" onchange="showCA();"/>
+        </form>
+        <div id="piechartitemID" style="width: 900px; height: 500px;"></div>
+        <div id="piechartZipCode" style="width: 900px; height: 500px;"></div>
+        <div id="piechartIdCustomer" style="width: 900px; height: 500px;"></div>
 
-        
-        <div>TODO write content</div>
     </body>
 </html>

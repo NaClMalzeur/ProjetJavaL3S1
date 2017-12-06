@@ -115,6 +115,7 @@ public class ServletControleur extends HttpServlet {
                     break;
                 case "pageAdminItem":
                     map = myDAO.chiffreAffaire(true, false, false, dateDebut, dateFin);
+                    System.out.println(map.size());
                     gsonData = gson.toJson(map);
                     out.println(gsonData);
                     
