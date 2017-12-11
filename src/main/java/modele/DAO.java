@@ -95,22 +95,24 @@ public class DAO {
      * On y affiche le produit commandé, la quantité, le prix unitaire (A VOIR),
      * le prix total, la date de vente / livraison, frais de livraison, 
      * 
-     * @param stmt
+     * @param customerId
      * @return la liste des commandes de ce client
      * @throws DAOException si une erreur survient lors de l'obtention des 
      *  commandes ou si le client n'existe pas
      */
-    public List<PurchaseOrderEntity> afficherCommandes(PreparedStatement stmt)
+    public List<PurchaseOrderEntity> afficherCommandes(int customerId)
             throws DAOException {
        
         // TODO : A VOIR POUR METTRE D'AUTRES ATT QUE CEUX DANS PURCHASE_ORDER
         List<PurchaseOrderEntity> listeCommandes = new ArrayList<PurchaseOrderEntity>();
-       
+       String query = "SELECT * FROM purchase_order po WHERE po.CUSTOMER_ID = ? ORDER BY po.ORDER_NUM";
         
         //String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ? AND SALES_DATE BETWEEN ? AND ?";
         //String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ? AND SHIPPING_DATE BETWEEN > SYSDATE";
-        try /*(Connection connection = myDataSource.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(sql))*/ {
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(query)) {
+            
+                stmt.setInt(1, customerId);
 
             /*stmt.setInt(1, customerID);
             stmt.setString(2, dateDebut);
@@ -144,76 +146,6 @@ public class DAO {
         //return null; // STUB : TODO ECRIRE LE CODE
     }
     
-    /**
-     * 
-     * @param customerId
-     * @param dateDebut
-     * @param dateFin
-     * @param productId
-     * @param zipCode
-     * @return
-     * @throws DAOException 
-     */
-    public List<PurchaseOrderEntity> rqtCommandes(int customerId, String dateDebut, String dateFin, int productId, String zipCode)
-        throws DAOException {
-        String query = "SELECT * FROM purchase_order po ";
-        String comma = " WHERE ";
-        
-        if (zipCode!=null){
-            query += " JOIN CUSTOMER cus ON po.CUSTOMER_ID = cus.CUSTOMER_ID ";
-        }
-        if (customerId != 0){
-            query += comma + " po.CUSTOMER_ID = ? ";
-            comma = " AND ";
-        }
-        if (dateDebut != null){
-            query += comma + " po.SALES_DATE > ? ";
-            comma = " AND ";
-        }
-        if (dateFin != null){
-            query += comma + " po.SALES_DATE < ? ";
-            comma = " AND ";
-        }
-        if (productId != 0){
-            query += comma + " po.PRODUCT_ID = ? ";
-            comma = " AND ";
-        }
-        if (zipCode!=null){
-            query += comma + " cus.ZIP = ?";
-        }
-        query += " ORDER BY po.ORDER_NUM";
-        try (Connection con = myDataSource.getConnection();
-            PreparedStatement stmt = con.prepareStatement(query)) {
-
-            int index = 1;
-            if (customerId != 0){
-                stmt.setInt(index, customerId);
-                index++;
-            }
-            if (dateDebut != null){
-                stmt.setString(index, dateDebut);
-                index++;
-            }
-            if (dateFin != null){
-                stmt.setString(index, dateFin);
-                index++;
-            }
-            if (productId != 0){
-                stmt.setInt(index, productId);
-                index++;
-            }
-            if (zipCode!=null){
-                stmt.setString(index, zipCode);
-                index++;
-            }
-            return afficherCommandes(stmt);
-        } catch(SQLException e) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            throw new DAOException("Afficher commandes");
-        }
-        
-    }
-    
     public List<ProductEntity> allProducts()
         throws DAOException {
         List<ProductEntity> listeProduct = new ArrayList<ProductEntity>();
@@ -244,114 +176,6 @@ public class DAO {
         }
         
         return listeProduct;
-    }
-    
-    public List<CustomerEntity> allCustomers()
-        throws DAOException {
-        List<CustomerEntity> listeCustomer = new ArrayList<CustomerEntity>();
-        String query = "SELECT * FROM CUSTOMER";
-        try (Connection connection = myDataSource.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(query)){
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    int customerId = rs.getInt("CUSTOMER_ID");
-                    String discountCode = rs.getString("DISCOUNT_CODE");
-                    String zip = rs.getString("ZIP");
-                    String name = rs.getString("NAME");
-                    String addressLine1 = rs.getString("ADRESSLINE1");
-                    String addressLine2 = rs.getString("ADRESSLINE2");
-                    String city = rs.getString("CITY");
-                    String state = rs.getString("STATE");
-                    String phone = rs.getString("PHONE");
-                    String fax = rs.getString("FAX");
-                    String email = rs.getString("EMAIL");
-                    int creditLimit = rs.getInt("CREDIT_LIMIT");
-                    
-                    
-                    CustomerEntity customer = new CustomerEntity(
-                            customerId, discountCode, zip, name, 
-                            addressLine1, addressLine2, city, state, 
-                            phone, fax, email, creditLimit);
-                    
-                    listeCustomer.add(customer);
-                }
-            }
-        } catch(SQLException e) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            throw new DAOException("All customers : " + e.getMessage());
-        }
-        
-        
-        return listeCustomer;
-    }
-    
-    public List<String> allZipCodes()
-        throws DAOException {
-        List<String> listeCustomer = new ArrayList<String>();
-        String query = "SELECT * FROM MICRO_MARKET";
-        try (Connection connection = myDataSource.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(query)){
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    String zip = rs.getString("ZIP_CODE");
-                    
-                    
-                    listeCustomer.add(zip);
-                }
-            }
-        } catch(SQLException e) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            throw new DAOException("All zip codes : " + e.getMessage());
-        }
-        
-        
-        return listeCustomer;
-    }
-    
-    
-    /**
-     * @param produitID
-     * @return l'entité produit associé à ce produitID
-     * @throws DAOException 
-     */
-    public ProductEntity getProduit(int produitID) throws DAOException  {
-        
-        ProductEntity product = null;
-        
-        String rqtSql = "SELECT * "
-                + "FROM PRODUCT "
-                + "WHERE PRODUCT_ID = ?";
-        
-        try (Connection connection = myDataSource.getConnection();
-            PreparedStatement pstmt = connection.prepareStatement(rqtSql)) {
-            
-            pstmt.setInt(1, produitID);
-            
-            pstmt.executeQuery();
-            
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    int manufacturerId = rs.getInt("MANUFACTURER_ID");
-                    String productCode = rs.getString("PRODUCT_CODE");
-                    float purchaseCode = rs.getFloat("PURCHASE_COST");
-                    int quantityOnHand = rs.getInt("QUANTITY_ON_HAND");
-                    float markup = rs.getFloat("MARKUP");
-                    String description = rs.getString("DESCRIPTION");
-                    
-                    product = new ProductEntity(produitID, manufacturerId, 
-                            productCode, purchaseCode, quantityOnHand, markup, 
-                            description);
-                }
-            }
-            
-        } catch(SQLException e) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            throw new DAOException("Get produit : " + e.getMessage());
-        }
-        
-        return product;
     }
     
     
@@ -417,9 +241,9 @@ public class DAO {
 
             pstmt.executeUpdate();
             
-            modificationStock(commande.getProductId(), -commande.getQuantity());
+            //modificationStock(commande.getProductId(), -commande.getQuantity());
             
-        } catch(SQLException | DAOException e) {
+        } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
             throw new DAOException(e.getMessage());
         } catch (ParseException ex) {
@@ -488,32 +312,6 @@ public class DAO {
         } catch(SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
             throw new DAOException("Modification commande : " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Modification des stocks de ce produit
-     * @param produitID le numéro du produit 
-     * @param qte la quantité à ajouter ou retirer
-     * @throws DAOException 
-     */
-    public void modificationStock (int produitID, int qte) throws DAOException{
-        
-        String rqtSql = "UPDATE PRODUCT "
-                + "SET QUANTITY_ON_HAND = QUANTITY_ON_HAND + ?"
-                + "WHERE PRODUCT_ID = ?";
-        
-        try (Connection connection = myDataSource.getConnection();
-            PreparedStatement pstmt = connection.prepareStatement(rqtSql)) {
-            
-            pstmt.setInt(1, qte);
-            pstmt.setInt(2, produitID);
-            
-            pstmt.executeUpdate();
-            
-        } catch(SQLException e) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            throw new DAOException("Modif stock : " + e.getMessage());
         }
     }
 

@@ -110,7 +110,7 @@ public class TestCommande {
        
         // Test pour un premier client valide
         try {
-             listeCommandes = myDAO.rqtCommandes(customerIDExistant1, null, null, 0, null);
+             listeCommandes = myDAO.afficherCommandes(customerIDExistant1);
              assertEquals(listeCommandes.size(), nbCommandes1);
         } catch (DAOException ex) {
              Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,7 +119,7 @@ public class TestCommande {
         
         // Test pour un second client valide
         try {
-            listeCommandes = myDAO.rqtCommandes(customerIDExistant2, null, null, 0, null);
+            listeCommandes = myDAO.afficherCommandes(customerIDExistant2);
             assertEquals(listeCommandes.size(), nbCommandes2);
         } catch (DAOException ex) {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
@@ -129,7 +129,7 @@ public class TestCommande {
         
         // Test pour un client non valide
         try {
-            listeCommandes = myDAO.rqtCommandes(customerIDNonExistant, null, null, 0, null);
+            listeCommandes = myDAO.afficherCommandes(customerIDNonExistant);
             if (!listeCommandes.isEmpty())
                 fail("ECHEC Test afficher commandes : des lignes sur un client inéxistant " + listeCommandes.size()); 
         } catch (DAOException ex) {
@@ -155,7 +155,7 @@ public class TestCommande {
             int customerID = 2;
             int productID = 980001;
             List<PurchaseOrderEntity> commandes =
-                    myDAO.rqtCommandes(customerID, null, null, 0, null);
+                    myDAO.afficherCommandes(customerID);
             int nbCommandesAvant = commandes.size();
             
             // ajout d'une commande
@@ -165,7 +165,7 @@ public class TestCommande {
             myDAO.ajoutCommande(commande);
              
             // nombre de commandes après ajout
-            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            commandes = myDAO.afficherCommandes(customerID);
             int nbCommandesApres = commandes.size();
              
             // Verif que la commande a été ajout 
@@ -203,15 +203,15 @@ public class TestCommande {
             productID = 980030; // qté = 250   
             qte = 200;
             
-            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            commandes = myDAO.afficherCommandes(customerID);
             
-            ProductEntity produit = myDAO.getProduit(productID);
+            //ProductEntity produit = myDAO.getProduit(productID);
             
             commandeModifiee = commandes.get(0);
             
             myDAO.modificationCommande(productID, qte, commandeModifiee.getOrderNum());
             
-            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            commandes = myDAO.afficherCommandes(customerID);
             
             // vérification commande à la bonne quantité et stock baissé
             assertTrue(commandes.get(0).getProductId() == commandeModifiee.getProductId()
@@ -242,7 +242,7 @@ public class TestCommande {
             productID = 980030;  
             qte = -5;
             
-           commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+           commandes = myDAO.afficherCommandes(customerID);
             
             commandeModifiee = commandes.get(0);
             
@@ -280,7 +280,7 @@ public class TestCommande {
             productID = -1;
             qte = 1;
             
-            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            commandes = myDAO.afficherCommandes(customerID);
 
             commandeModifiee = commandes.get(0);
             
@@ -304,14 +304,14 @@ public class TestCommande {
         try {
             int customerID = 36;
             List<PurchaseOrderEntity> commandes =
-                    myDAO.rqtCommandes(customerID, null, null, 0, null);
+                    myDAO.afficherCommandes(customerID);
             int nbCommandesAvant = commandes.size();
             
             // suppression d'une commande
             myDAO.suppressionCommande(commandes.get(0).getOrderNum());
              
             // nombre de commandes après suppression
-            commandes = myDAO.rqtCommandes(customerID, null, null, 0, null);
+            commandes = myDAO.afficherCommandes(customerID);
             int nbCommandesApres = commandes.size();
              
             // Verif que la commande a été supprimé 

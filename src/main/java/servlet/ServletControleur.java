@@ -89,7 +89,7 @@ public class ServletControleur extends HttpServlet {
                     
                     idCli = Integer.parseInt((String)session.getAttribute("userId"));
                     
-                    List<PurchaseOrderEntity> lst = myDAO.rqtCommandes(idCli, null, null, 0, null);
+                    List<PurchaseOrderEntity> lst = myDAO.afficherCommandes(idCli);
                     gsonData = gson.toJson(lst);
                     out.println(gsonData);  
                     

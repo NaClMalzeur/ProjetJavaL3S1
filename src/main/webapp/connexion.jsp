@@ -27,7 +27,7 @@
                 </tr>
                 <tr>
                     <td>Mdp</td>
-                    <td><input type="text" name="passwordParam" width="20"> </input></td>
+                    <td><input type="password" name="passwordParam" width="20"> </input></td>
                 </tr>
                 <tr>
                     <td colspan="2"> <input name="action" type="submit" value="CONNECTION"> </input></td>
