@@ -9,6 +9,7 @@ and open the template in the editor.
         <title>PAGE ADMIN : MINI PROJET</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="projetCss.css">
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
@@ -95,9 +96,11 @@ and open the template in the editor.
             <input type="date" id="dateDebut" name="dateDebut" onchange="showCA();"/>
             <input type="date" id="dateFin" name="dateFin" onchange="showCA();"/>
         </form>
-        <div id="piechartArticle" style="width: 900px; height: 500px;"></div>
-        <div id="piechartZipCode" style="width: 900px; height: 500px;"></div>
-        <div id="piechartClient" style="width: 900px; height: 500px;"></div>
-
+        
+         <div id="center_div">
+            <div id="piechartArticle" style="width: 900px; height: 500px;"></div>
+            <div id="piechartZipCode" style="width: 900px; height: 500px;"></div>
+            <div id="piechartClient" style="width: 900px; height: 500px;"></div>
+        </div>
     </body>
 </html>
