@@ -146,6 +146,11 @@ public class DAO {
         //return null; // STUB : TODO ECRIRE LE CODE
     }
     
+    /**
+     * Fonction permetant de recuperer la liste de tout les produits pour l'ajout d'une commande
+     * @return la liste de tous les produits
+     * @throws DAOException 
+     */
     public List<ProductEntity> allProducts()
         throws DAOException {
         List<ProductEntity> listeProduct = new ArrayList<ProductEntity>();
@@ -253,6 +258,7 @@ public class DAO {
     }
     
     /**
+     * Permet de passer une date en chaine de caractere sous format Date
      * @param str la date à formater
      * @return L'objet Date sql issue d'une date sous la forme d'une string
      * @throws ParseException 
@@ -266,7 +272,7 @@ public class DAO {
  
      
     /**
-     * Suppression de cette commande
+     * Suppression d'une commande commande
      * @param order_num
      * @throws DAOException si la suppression de ce produit échoue 
      */
@@ -289,7 +295,7 @@ public class DAO {
         }
     }
     
-        /**
+    /**
      * Modification de la commande avec le ORDER_NUM de cette commande 
      * @param idProd
      * @param quantity
@@ -315,6 +321,16 @@ public class DAO {
         }
     }
 
+    /**
+     * Fonction permetant de calculer le chiffre d'affaire entre deux dates
+     * Prend en argument les dates et le parametre sur lequel il fautcalculer le CA
+     * @param byItem boolean indiquant si on calcul le CA par object
+     * @param byZip boolean indiquant si on calcul le CA par zip code
+     * @param byCustomer boolean indiquant si on calcul le CA par client
+     * @param dateDebut String de la date de debut
+     * @param dateFin String de la date de fin
+     * @return hashMap des chiffres d'affaires
+     */
     public Map<String,Integer> chiffreAffaire(boolean byItem, boolean byZip, boolean byCustomer, String dateDebut, String dateFin){
         Map<String,Integer> map = new HashMap<String,Integer>();
         String query = "SELECT SUM(p.purchase_cost*po.quantity), ";
@@ -367,8 +383,6 @@ public class DAO {
                     map.put(id,ca);
                 }
             }
-            if(byCustomer)
-                System.out.println(map.values());
         } catch (SQLException | ParseException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         }

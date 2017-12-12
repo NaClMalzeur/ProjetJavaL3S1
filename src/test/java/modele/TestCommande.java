@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
@@ -298,7 +299,7 @@ public class TestCommande {
      * Tests quand utilisateur supprime une commande  
      */
     @Test
-    public void testSuppressionCommande() {;
+    public void testSuppressionCommande() {
         
         // nombre de commandes avant suppression
         try {
@@ -321,6 +322,31 @@ public class TestCommande {
             Logger.getLogger(TestCommande.class.getName()).log(Level.SEVERE, null, ex);
             fail("Suppression commande echec : la suppression à échouée !");
         }
+    }
+    
+    @Test
+    public void testChiffreAffaireNoDates() {
+        
+        Map<String,Integer> mapByItem = myDAO.chiffreAffaire(true, false, false, null, null);
+        Map<String,Integer> mapByZip = myDAO.chiffreAffaire(false, true, false, null, null);
+        Map<String,Integer> mapByCustomer = myDAO.chiffreAffaire(false, false, true, null, null);
+        
+        
+    }
+    
+    @Test
+    public void testChiffreAffaireWithDates() {
+        String dateDebut = "2017-11-22";
+        String dateFin = "2017-11-22";
+        Map<String,Integer> mapByItem = myDAO.chiffreAffaire(true, false, false, dateDebut, dateFin);
+        Map<String,Integer> mapByZip = myDAO.chiffreAffaire(false, true, false, dateDebut, dateFin);
+        Map<String,Integer> mapByCustomer = myDAO.chiffreAffaire(false, false, true, dateDebut, dateFin);
+        
+        Map<String,Integer> mapByItem2 = myDAO.chiffreAffaire(true, false, false, null, dateFin);
+        Map<String,Integer> mapByZip2 = myDAO.chiffreAffaire(false, true, false, null, dateFin);
+        Map<String,Integer> mapByCustomer2 = myDAO.chiffreAffaire(false, false, true, null, dateFin);
+        
+        
     }
     
 }
