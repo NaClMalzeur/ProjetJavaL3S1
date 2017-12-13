@@ -99,6 +99,7 @@ public class ServletControleur extends HttpServlet {
                     quantity = Integer.parseInt(request.getParameter("quantity"));
                     productId = Integer.parseInt(request.getParameter("productId"));
                     myDAO.modificationCommande(productId, quantity, idCom);
+                    System.out.println("lala");
                     
                     break;
                 case "ajout":

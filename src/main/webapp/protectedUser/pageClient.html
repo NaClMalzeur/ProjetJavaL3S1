@@ -87,7 +87,7 @@ and open the template in the editor.
                             function (result) {
                                 console.log(result);
 
-                                var html = '<select name="productId">';
+                                var html = '<select name="productId" id="productId">';
                                 for(i = 0; i<result.length; i++)
                                     html += '<option value="' + result[i].productId + '">' + result[i].description+ "</option>";
                                 html += "</select>";
@@ -111,15 +111,17 @@ and open the template in the editor.
 
             function modifCommande(idCom){
                 var productId;
+                console.log($('#productId')[0].value);
                 if($('#productId')[0].value==="")
                     productId = $('#prodId'+idCom)[0].textContent;
                 else
                     productId = $('#productId')[0].value;
                 var quantity;
-                if($('#quantity')[0].value==="")
-                    quantity = $('#qtt'+idCom)[0].textContent;
+                console.log($('#quantity'));
+                if($('#qte')[0].value==="")
+                    quantity = $('#qte'+idCom)[0].textContent;
                 else
-                    quantity = $('#quantity')[0].value;
+                    quantity = $('#qte')[0].value;
                 console.log(productId);
                 console.log(quantity);
                 $.ajax({
@@ -169,7 +171,7 @@ and open the template in the editor.
                 </tr>
                 <tr>
                     <td id="allCommande"></td>
-                    <td><input type="number" step='1' name="quantity"/></td>
+                    <td><input type="number" step='1' name="quantity" id="qte"/></td>
                     <td><input type="date" name="shippingDate"/></td>
                     <td><input type="text" name="freightCompany"/></td>
                     <td><input name="action" type="submit" value="Ajout"/></td>
